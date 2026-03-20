@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#6366f1;--primary-bg:#eef2ff;
+  --c-ideacion:#d97706;--c-ideacion-bg:#fffbeb;--c-ideacion-border:#fde68a;
+  --c-pitchdev:#db2777;--c-pitchdev-bg:#fdf2f8;--c-pitchdev-border:#fbcfe8;
+  --c-pitch:#7c3aed;--c-pitch-bg:#f5f3ff;--c-pitch-border:#ddd6fe;
+  --c-desarrollo:#2563eb;--c-desarrollo-bg:#eff6ff;--c-desarrollo-border:#bfdbfe;
+  --c-produccion:#059669;--c-produccion-bg:#ecfdf5;--c-produccion-border:#6ee7b7;
+  --bg:#f1f5f9;--white:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1)
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:58px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.logo{font-weight:800;font-size:17px;display:flex;align-items:center;gap:9px;color:var(--text)}
+.logo-icon{width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.search-wrap{flex:1;max-width:360px;margin-left:8px}
+.search-input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;position:relative}
+.search-input:focus{border-color:var(--primary);background:white}
+.search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+.search-wrap{position:relative}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{padding:7px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--primary);color:white}.btn-primary:hover{background:#4f46e5}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:13px}
+
+/* NAV TABS */
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:2px}
+.nav-tab{padding:11px 16px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit;display:flex;align-items:center;gap:6px}
+.nav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.nav-tab:hover:not(.active){color:var(--text)}
+.tab-badge{background:var(--border);color:var(--muted);font-size:11px;padding:1px 7px;border-radius:999px;font-weight:600}
+.nav-tab.active .tab-badge{background:var(--primary-bg);color:var(--primary)}
+
+/* MAIN */
+main{padding:24px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:3px solid transparent;cursor:pointer;transition:box-shadow .15s}
+.stat:hover{box-shadow:var(--shadow-md)}
+.stat.ideacion{border-top-color:var(--c-ideacion)}.stat.pitchdev{border-top-color:var(--c-pitchdev)}.stat.pitch{border-top-color:var(--c-pitch)}.stat.desarrollo{border-top-color:var(--c-desarrollo)}.stat.produccion{border-top-color:var(--c-produccion)}
+.stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat.ideacion .stat-label{color:var(--c-ideacion)}.stat.pitchdev .stat-label{color:var(--c-pitchdev)}.stat.pitch .stat-label{color:var(--c-pitch)}.stat.desarrollo .stat-label{color:var(--c-desarrollo)}.stat.produccion .stat-label{color:var(--c-produccion)}
+.stat-num{font-size:28px;font-weight:800;line-height:1}.stat-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;align-items:start}
+.kanban-col{display:flex;flex-direction:column;gap:8px}
+.kanban-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.kanban-header.ideacion{background:var(--c-ideacion-bg);color:var(--c-ideacion);border:1px solid var(--c-ideacion-border)}
+.kanban-header.pitchdev{background:var(--c-pitchdev-bg);color:var(--c-pitchdev);border:1px solid var(--c-pitchdev-border)}
+.kanban-header.pitch{background:var(--c-pitch-bg);color:var(--c-pitch);border:1px solid var(--c-pitch-border)}
+.kanban-header.desarrollo{background:var(--c-desarrollo-bg);color:var(--c-desarrollo);border:1px solid var(--c-desarrollo-border)}
+.kanban-header.produccion{background:var(--c-produccion-bg);color:var(--c-produccion);border:1px solid var(--c-produccion-border)}
+.k-count{padding:1px 8px;border-radius:999px;font-size:11px;background:rgba(0,0,0,.08)}
+
+/* PROJECT CARD */
+.project-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s;border-left:3px solid transparent;position:relative}
+.project-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.project-card.ideacion{border-left-color:var(--c-ideacion)}.project-card.pitchdev{border-left-color:var(--c-pitchdev)}.project-card.pitch{border-left-color:var(--c-pitch)}.project-card.desarrollo{border-left-color:var(--c-desarrollo)}.project-card.produccion{border-left-color:var(--c-produccion)}
+.card-name{font-weight:700;font-size:14px;margin-bottom:5px;line-height:1.3}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px}
+.card-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-gray{background:#f1f5f9;color:var(--muted)}
+.badge-green{background:#d1fae5;color:#065f46}
+.card-date{margin-left:auto;font-size:11px;color:var(--muted)}
+.phase-bar{margin-top:8px}.phase-track{height:3px;background:var(--border);border-radius:999px;overflow:hidden}
+.phase-fill{height:100%;border-radius:999px;background:var(--c-desarrollo);transition:width .3s}
+.phase-label{font-size:11px;color:var(--muted);margin-top:3px}
+/* SUBPROJECTS */
+.sub-parent-tag{font-size:11px;color:var(--primary);font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:4px;opacity:.8}
+.sub-count-badge{background:var(--primary-bg);color:var(--primary);font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
+.project-card.is-sub{margin-left:10px;border-left-width:2px;border-left-style:dashed}
+.sub-mini-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .15s}
+.sub-mini-row:hover{background:#eef2ff;border-color:var(--primary)}
+.sub-mini-name{font-size:13px;font-weight:600;flex:1;color:var(--text)}
+.sub-mini-meta{display:flex;align-items:center;gap:6px}
+.sub-group-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+.sub-group-h:first-child{margin-top:0}
+.sub-progress{display:flex;gap:3px;align-items:center}
+.sub-progress-dot{width:7px;height:7px;border-radius:50%}
+.sub-add-row{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.empty-drop{border:2px dashed var(--border);border-radius:10px;height:72px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s}
+.empty-drop:hover{border-color:var(--primary);color:var(--primary)}
+
+/* TABLE */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.table-toolbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.table-title{font-weight:700;font-size:15px;flex:1}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:11px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:hover td{background:#f8fafc}
+.stage-pill{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.stage-pill.ideacion{background:var(--c-ideacion-bg);color:var(--c-ideacion);border:1px solid var(--c-ideacion-border)}
+.stage-pill.pitchdev{background:var(--c-pitchdev-bg);color:var(--c-pitchdev);border:1px solid var(--c-pitchdev-border)}
+.stage-pill.pitch{background:var(--c-pitch-bg);color:var(--c-pitch);border:1px solid var(--c-pitch-border)}
+.stage-pill.desarrollo{background:var(--c-desarrollo-bg);color:var(--c-desarrollo);border:1px solid var(--c-desarrollo-border)}
+.stage-pill.produccion{background:var(--c-produccion-bg);color:var(--c-produccion);border:1px solid var(--c-produccion-border)}
+.lead-tag{font-size:13px;display:flex;align-items:center;gap:5px}
+.avatar{width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.lead-sel{border-radius:999px;padding:2px 10px 2px 6px;font-size:11px;font-weight:700;cursor:pointer;outline:none;border:1px solid;font-family:inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%2364748b' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;padding-right:18px}
+.lead-sel.tech{background-color:#dbeafe;color:#1e40af;border-color:#bfdbfe}
+.lead-sel.tech.empty{background-color:#f1f5f9;color:#94a3b8;border-color:#e2e8f0}
+.lead-sel.product{background-color:#f0fdf4;color:#166534;border-color:#bbf7d0}
+.lead-sel.product.empty{background-color:#f1f5f9;color:#94a3b8;border-color:#e2e8f0}
+
+/* FEEDBACK */
+.feedback-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.panel-title{font-weight:700;font-size:15px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.panel-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.panel-icon.slack{background:#4a154b}.panel-icon.assigned{background:#e0e7ff}
+textarea{width:100%;height:100px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;outline:none;color:var(--text)}
+textarea:focus{border-color:var(--primary)}
+select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:white;outline:none;margin-top:8px}
+select:focus{border-color:var(--primary)}
+.input-row{display:flex;gap:8px;margin-top:8px}
+.feedback-item{padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--bg)}
+.feedback-item-text{font-size:13px;line-height:1.45;color:var(--text);margin-bottom:6px}
+.feedback-item-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.feedback-proj{font-weight:600;color:var(--primary)}
+.remove-feedback{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px}
+.remove-feedback:hover{color:#ef4444}
+.inbox-empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:780px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 48px rgba(0,0,0,.18)}
+.modal-header{padding:22px 24px 0;display:flex;align-items:flex-start;gap:12px}
+.modal-title-area{flex:1}
+.modal-name{font-size:20px;font-weight:800;line-height:1.2;margin-bottom:6px}
+.modal-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:4px;margin-left:4px}
+.modal-close:hover{color:var(--text)}
+.modal-tabs{display:flex;gap:2px;padding:16px 24px 0;border-bottom:1px solid var(--border)}
+.modal-tab{padding:8px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;transition:all .15s}
+.modal-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.modal-body{padding:22px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.modal-footer-left{display:flex;gap:6px}
+.modal-footer-right{margin-left:auto;display:flex;gap:8px}
+
+.section-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;margin-top:20px}
+.section-h:first-child{margin-top:0}
+.idea-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.idea-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;display:flex;align-items:flex-start;gap:8px}
+.idea-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);margin-top:5px;flex-shrink:0}
+.feedback-quote{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px}
+.q-icon{font-size:16px;color:#d97706;flex-shrink:0;margin-top:-1px}
+.spec-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;font-family:inherit}
+.empty-state{text-align:center;padding:32px;color:var(--muted);font-size:13px;background:var(--bg);border-radius:8px;border:1px dashed var(--border)}
+
+.stage-btns{display:flex;gap:6px;flex-wrap:wrap}
+.stage-btn{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .15s;font-family:inherit}
+.stage-btn.ideacion{background:var(--c-ideacion-bg);color:var(--c-ideacion);border-color:var(--c-ideacion-border)}.stage-btn.ideacion.active{background:var(--c-ideacion);color:white}
+.stage-btn.pitchdev{background:var(--c-pitchdev-bg);color:var(--c-pitchdev);border-color:var(--c-pitchdev-border)}.stage-btn.pitchdev.active{background:var(--c-pitchdev);color:white}
+.stage-btn.pitch{background:var(--c-pitch-bg);color:var(--c-pitch);border-color:var(--c-pitch-border)}.stage-btn.pitch.active{background:var(--c-pitch);color:white}
+.stage-btn.desarrollo{background:var(--c-desarrollo-bg);color:var(--c-desarrollo);border-color:var(--c-desarrollo-border)}.stage-btn.desarrollo.active{background:var(--c-desarrollo);color:white}
+.stage-btn.produccion{background:var(--c-produccion-bg);color:var(--c-produccion);border-color:var(--c-produccion-border)}.stage-btn.produccion.active{background:var(--c-produccion);color:white}
+
+.copy-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--primary);background:var(--primary-bg);color:var(--primary);font-family:inherit;display:flex;align-items:center;gap:5px;transition:all .15s}
+.copy-btn:hover{background:var(--primary);color:white}
+.btn-danger{background:none;border:1px solid #fecaca;color:#ef4444;font-size:13px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit}
+.btn-danger:hover{background:#fef2f2}
+
+/* NEW PROJECT MODAL */
+.nmodal{background:var(--white);border-radius:16px;width:100%;max-width:480px;box-shadow:0 24px 48px rgba(0,0,0,.18);padding:28px}
+.nmodal-title{font-size:18px;font-weight:800;margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+input[type=text]{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);outline:none}
+input[type=text]:focus{border-color:var(--primary)}
+.nmodal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;color:white;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .25s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateY(0);opacity:1}
+
+
+/* ALCANCE / DATE */
+.alcance-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.alcance-check{width:16px;height:16px;accent-color:var(--primary);cursor:pointer;margin-top:2px;flex-shrink:0}
+.alcance-text{flex:1;font-size:13px;line-height:1.45;word-break:break-word}
+.alcance-text.done{text-decoration:line-through;color:var(--muted)}
+.alcance-assign{font-size:11px;padding:2px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;background:white;color:var(--muted);cursor:pointer;flex-shrink:0;max-width:140px}
+.alcance-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0 2px;flex-shrink:0;line-height:1}
+.alcance-del:hover{color:#ef4444}
+.alcance-add-row{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.date-field{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;white-space:nowrap}
+.date-field label{font-weight:700;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.date-field input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;color:var(--text);padding:0;outline:none;cursor:pointer;width:98px}
+/* DEV VIEW */
+.dev-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.dev-section-h{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.dev-avatar-lg{width:40px;height:40px;border-radius:50%;background:var(--primary);color:white;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dev-name{font-size:16px;font-weight:800}
+.dev-proj-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:6px;background:var(--bg)}
+.dev-proj-row:hover{background:var(--primary-bg);border-color:var(--primary)}
+.dev-proj-name{flex:1;font-size:13px;font-weight:600}
+.hidden{display:none!important}
+.save-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;margin-left:6px;opacity:0;transition:opacity .3s}
+.save-dot.show{opacity:1}
+.flex-center{display:flex;align-items:center;justify-content:center}
+.mt8{margin-top:8px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🚀</div>
+    Product Hub
+    <span class="save-dot" id="saveDot" title="Datos guardados"></span>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar proyectos..." oninput="handleSearch(this.value)">
+  </div>
+  <div class="header-right">
+    <button class="btn btn-ghost btn-sm" onclick="exportData()" title="Descargar backup JSON">💾 Exportar</button>
+    <button class="btn btn-ghost btn-sm" onclick="resetData()" title="Resetear a datos originales" style="color:#ef4444;border-color:#fecaca">↺ Reset</button>
+    <button class="btn btn-primary" onclick="openNewModal()">+ Nueva Idea</button>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-tab active" id="tab-kanban" onclick="switchView('kanban')">📋 Kanban <span class="tab-badge" id="badge-kanban">0</span></button>
+  <button class="nav-tab" id="tab-tabla" onclick="switchView('tabla')">📊 Tabla de Control <span class="tab-badge" id="badge-tabla">0</span></button>
+  <button class="nav-tab" id="tab-feedback" onclick="switchView('feedback')">💬 Feedback Inbox <span class="tab-badge" id="badge-feedback">0</span></button>
+  <button class="nav-tab" id="tab-devview" onclick="switchView('devview')">👥 Por Desarrollador</button>
+</nav>
+
+<!-- MAIN -->
+<main>
+  <!-- STATS -->
+  <div class="stats" id="statsBar"></div>
+
+  <!-- KANBAN VIEW -->
+  <div id="view-kanban">
+    <div class="kanban" id="kanbanBoard"></div>
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div id="view-tabla" class="hidden">
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <span class="table-title">Todos los proyectos</span>
+        <span style="font-size:13px;color:var(--muted)" id="tableCount"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Etapa</th>
+            <th>Leads</th>
+            <th>Fase</th>
+            <th>Subproyectos</th>
+            <th>Feedback</th>
+            <th>Estado</th>
+            <th>Última act.</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DEV VIEW -->
+  <div id="view-devview" class="hidden"></div>
+
+  <!-- FEEDBACK VIEW -->
+  <div id="view-feedback" class="hidden">
+    <div class="feedback-layout">
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-icon slack">💬</div>
+          Pegar feedback de Slack / Email
+        </div>
+        <textarea id="fbText" placeholder="Pega aquí el mensaje de Slack, email o nota de cliente..."></textarea>
+        <select id="fbProject">
+          <option value="">— Asignar a proyecto —</option>
+        </select>
+        <div class="input-row">
+          <select id="fbSource" style="flex:none;width:140px">
+            <option value="Slack">Slack</option>
+            <option value="Email">Email</option>
+            <option value="Call">Call / Meeting</option>
+            <option value="Survey">Survey</option>
+          </select>
+          <button class="btn btn-primary" style="flex:1" onclick="addFeedback()">Asignar feedback ↗</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-icon assigned">📌</div>
+          Feedback asignado
+        </div>
+        <div id="feedbackList"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- PROJECT DETAIL MODAL -->
+<div class="overlay" id="projectOverlay" onclick="handleOverlayClick(event,'projectOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <div class="modal-name" id="modalName">—</div>
+        <div class="modal-meta" id="modalMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchModalTab('contexto')">Contexto</button>
+      <button class="modal-tab" onclick="switchModalTab('brainstorm')">Brainstorm</button>
+      <button class="modal-tab" onclick="switchModalTab('feedback')">Feedback</button>
+      <button class="modal-tab" onclick="switchModalTab('pitch')">Pitch &amp; Spec</button>
+      <button class="modal-tab" id="tabSubproyectos" onclick="switchModalTab('subproyectos')">Subproyectos</button>
+      <button class="modal-tab" id="tabAlcance" onclick="switchModalTab('alcance')">Alcance</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <span style="font-size:12px;color:var(--muted);font-weight:600;margin-right:4px;align-self:center">Mover a:</span>
+        <div class="stage-btns" id="stageBtns"></div>
+      </div>
+      <div class="modal-footer-right">
+        <button class="btn-danger" id="deleteBtn" onclick="deleteProject()">Eliminar</button>
+        <button class="copy-btn" id="copyLinearBtn" onclick="copyForLinear()">📋 Copiar para Linear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="overlay" id="newOverlay" onclick="handleOverlayClick(event,'newOverlay')">
+  <div class="nmodal">
+    <div class="nmodal-title">✨ Nueva idea / proyecto</div>
+    <div class="field">
+      <label>Nombre del proyecto</label>
+      <input type="text" id="newName" placeholder="ej. App de Onboarding Rediseñada">
+    </div>
+    <div class="field">
+      <label>Descripción breve</label>
+      <input type="text" id="newDesc" placeholder="¿Qué problema resuelve o qué quieres explorar?">
+    </div>
+    <div class="field">
+      <label>Etapa inicial</label>
+      <select id="newStage" style="margin-top:0">
+        <option value="ideacion">💡 Ideación</option>
+        <option value="pitch">📄 Pitch Listo</option>
+        <option value="desarrollo">⚙️ En Desarrollo</option>
+        <option value="produccion">✅ En Producción</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Lead (opcional)</label>
+      <input type="text" id="newLead" placeholder="Nombre del responsable">
+    </div>
+    <div class="nmodal-footer">
+      <button class="btn btn-ghost" onclick="closeNewModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="createProject()">Crear proyecto</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────
+const STAGES = {
+  ideacion:   { label: '💡 Ideación',             cls: 'ideacion',   icon: '💡' },
+  pitchdev:   { label: '✍️ Pitch en Desarrollo',  cls: 'pitchdev',   icon: '✍️' },
+  pitch:      { label: '📄 Pitch Listo',          cls: 'pitch',      icon: '📄' },
+  desarrollo: { label: '⚙️ En Desarrollo',        cls: 'desarrollo', icon: '⚙️' },
+  produccion: { label: '✅ En Producción',        cls: 'produccion', icon: '✅' }
+};
+
+let projects = [
+  {
+    id: 3, name: 'Control Administrativo', stage: 'ideacion',
+    desc: '',
+    leadTech: null, leadProduct: null, phase: null, totalPhases: null, parentId: null, updated: '2026-03-20',
+    startDate: null, dueDate: null, alcance: [],
+
+    ideas: [], feedback: [], pitch: null, spec: null
+  },
+  {
+    id: 1, name: 'Control de Materiales', stage: 'pitchdev',
+    desc: 'Módulo unificado que conecta el ciclo completo: solicitud → compra → recepción en bodega → salida.',
+    leadTech: null, leadProduct: null, phase: null, totalPhases: null, parentId: null, updated: '2026-03-20',
+    startDate: null, dueDate: null, alcance: [],
+
+    ideas: [], feedback: [], pitch: `## Contexto y Problema
+Mawi actualmente cuenta con tres módulos independientes relacionados a materiales: Listado de Materiales, Solicitudes de Materiales y Órdenes de Compra. Estos operan como piezas aisladas sin integración real, lo que impide seguir el ciclo completo de un material desde que se solicita hasta que entra y sale de bodega.
+
+Consecuencias del problema actual:
+• No existe visibilidad del estado de un material específico dentro de una solicitud.
+• No hay trazabilidad entre solicitud, compra, recepción an bodega y salida a obra.
+• Los estados de solicitud son globales y se cambian manualmente, sin reflejo automático.
+• No contamos con funcionalidades de entradas y salidas de bodega para control de inventario.
+
+## Apetito
+Duración: 15 días hábiles | Inicio: 18/03/2026 — Fin: 07/04/2026
+Si la solución requiere más tiempo, se reduce el alcance — no se extiende el ciclo.
+
+## Objetivo
+Construir un módulo unificado de Control de Materiales que conecte el ciclo completo:
+solicitud → cotización → orden de compra / gasto directo → entrada a bodega → salida de bodega
+
+Trazando el estado de cada material individual a lo largo de todo el proceso mediante una clave de material como identificador común.
+
+## Dentro del alcance
+1. Estructura general del módulo (tabs, navegación) — Nuevo
+2. Solicitudes de materiales — Existente + mejoras
+3. Entradas (recepción en bodega) — Nuevo
+4. Salidas (salida de bodega) — Nuevo
+5. Inventario — Existente + mejoras
+
+## Fuera del alcance
+— Integración con Construplaza
+— Auto-asignación de claves con IA al importar cotizaciones PDF
+— Generación automática de codificación para clientes sin claves (MAT0001, MAT0002...)
+— Funcionalidad de split de líneas`, spec: `## A. Cambios Estructurales
+
+A.1 Renombrar módulo
+Antes: Módulo "Control de Insumos" → Subcategoría "Control de Materiales"
+Después: Módulo directo "Control de Materiales" (se elimina la jerarquía en el menú)
+
+A.2 Tabs (en este orden)
+1. Inventario  2. Solicitudes  3. Entradas  4. Salidas
+El sistema recuerda el último tab visitado por usuario y proyecto.
+
+---
+
+## B. Solicitudes de Materiales
+
+B.1 Qué se mantiene
+Botón de configuración (remitentes), descarga de PDF, botón de importar texto, botón de nueva solicitud.
+
+B.2 Cambios de UX
+- Layout: migrar de cards a tabla con agrupaciones.
+- Agrupación por defecto: por Solicitud. Puede cambiar a agrupar por OC o sin agrupación.
+- Formulario de creación: migrar a pantalla completa.
+
+B.3 Campo de Clave en formulario
+- Funciona como campo de texto + dropdown combinado.
+- Dropdown muestra claves e ítems del Inventario del proyecto.
+- Al seleccionar clave existente: se precargan descripción y unidad.
+- Al ingresar clave nueva: ícono "Agregar al inventario" — crea el material con clave, descripción y unidad (sin cantidad).
+
+B.4 Columnas de la tabla de Solicitudes
+# Solicitud | Estado de material | Fecha | Clave | Descripción | Unidad | Cantidad Solicitada | Cantidad Cotizada | Cantidad Comprada | Cantidad Entregada | # Cotización | # Orden de Compra | # Factura | # Entrega | Quien Solicita
+
+B.5 Sistema de Estados
+
+NIVEL 2 — Estado de Material (automático, por línea)
+- Pendiente: sin asociación a ningún documento
+- Cotizado: tiene cotización, sin OC ni gasto
+- Comprado: OC/gasto con cantidad completa
+- Compra parcial: OC/gasto con cantidad menor a la solicitada
+- Entregado: entrega completa en bodega
+- Entrega parcial: entrega con cantidad menor a la solicitada
+- Pendiente reasignación: comprado pero con entrega cerrada incompleta
+
+NIVEL 1 — Estado de Aprobación (manual, por solicitud)
+- Aprobación pendiente | Aprobado | Aprobación parcial | Rechazado | Cancelado
+
+Estado Global de Solicitud (automático):
+Tres parejas mutuamente excluyentes: Cotizado/Cotización parcial, Comprado/Compra parcial, Entregado/Entrega parcial. Si coexisten ambas opciones de una pareja, prevalece la "parcial".
+
+B.6 Botón "Asignar Claves"
+Si una solicitud no tiene claves en todas sus líneas, aparece el botón. Al hacer clic abre la vista show habilitando solo la columna Clave para edición.
+
+B.7 Acciones Masivas (requiere clave asignada)
+- Solicitar cotización: abre formulario con materiales precargados, líneas quedan asociadas al # solicitud.
+- Crear OC: Manual o Importar cotización (PDF con IA existente).
+- Restricción: no se permite si hay líneas sin clave asignada.
+- Consolidación cross-solicitudes: materiales con la misma clave en distintas solicitudes se consolidan en una línea de OC con cantidad sumada, asociada a ambas solicitudes.
+
+---
+
+## C. Entradas (Recepción en Bodega)
+
+C.1 Fuentes
+Toda OC y todo Gasto Directo generan automáticamente una fila en el buzón de Entradas, pendiente de entrega.
+
+C.2 Columnas de la tabla de Entradas
+Tipo | # Entrada | # Orden de Compra | # Factura | Proveedor | Fecha última entrega | Asignación de Clave | Estado de recepción (Pendiente/Parcial/Recibido) | Acciones
+
+C.3 Registro de Recepción
+Modal con: # OC, # Factura, Proveedor, Recibido por, Fecha de entrega.
+Tabla de líneas: Clave | Descripción | Unidad | Cant. OC | Cant. Factura | Recibido acumulado | Pendiente | Recibido ahora (editable)
+
+Reglas de precarga "Recibido ahora":
+- Gasto Directo → monto pendiente.
+- OC sin facturas → monto pendiente.
+- OC con facturas → cantidad de la factura seleccionada.
+
+C.4 Impacto en estados
+- Cantidad recibida = solicitada → Entregado
+- Cantidad recibida < solicitada → Entrega parcial
+
+Regla de consumo por prioridad cronológica: entregas incompletas en OCs consolidadas se consumen por orden de creación de solicitud.
+Ejemplo: Pedido A (10u) + Pedido B (5u) en OC por 15. Llegan 12 → Pedido A Entregado (10), Pedido B Entrega parcial (2/5).
+
+Reasignación: Si una OC se cierra con materiales sin entregar → "Pendiente reasignación", se elimina la asociación a esa OC.
+
+---
+
+## D. Salidas (Salida de Bodega)
+
+D.1 Formulario de Nueva Salida
+Material (por clave/descripción) | Cantidad | Quién retira | Destino (opcional) | Distribución por concepto de presupuesto (opcional)
+
+D.2 Tabla de Salidas
+# Salida | Fecha | Solicitado por | Destino | Notas | Acciones
+Filtros: fecha, usuario, asociado a concepto.
+Modal de Detalle: Total sacado | Total distribuido | Pendiente por distribuir.
+
+---
+
+## Reglas Generales
+1. Módulo aparece en menú como "Control de Materiales" sin categoría padre.
+2. Los tabs recuerdan el último visitado por usuario+proyecto.
+3. El estado de material se actualiza automáticamente al asociar cotizaciones, OCs y recepciones.
+4. Las acciones masivas bloquean la creación de OC/Cotización si falta asignación de claves.
+5. Toda OC y Gasto Directo generan automáticamente una entrada en el buzón de Entradas.
+6. La regla de consumo por prioridad cronológica funciona en entregas incompletas consolidadas.
+7. Discrepancias OC vs Factura se muestran con alerta visual cuando ambos tienen claves asignadas.
+8. "Reasignar entregas pendientes" cambia el estado y elimina la asociación a la OC.
+9. Las entradas aumentan el stock en inventario; las salidas lo reducen.
+
+---
+
+## Dependencias Técnicas Previas (todas pendientes)
+- Columna de Clave en líneas de OC
+- Columna de Clave en líneas de Gastos
+- Columna de Clave en líneas de Cotizaciones
+- Campo de asociación a # Solicitud en líneas de OC/Gasto/Cotización
+- Comportamiento de Clave como texto + dropdown en Gastos y OC`
+  },
+  {
+    id: 2, name: 'Órdenes de Cambio para Subcontratos', stage: 'pitch',
+    desc: 'Gestión de modificaciones de alcance en órdenes de compra con trazabilidad completa, versionado y reflejo automático en presupuesto.',
+    leadTech: null, leadProduct: null, phase: null, totalPhases: null, parentId: null, updated: '2026-03-20',
+    ideas: [],
+    feedback: [],
+    pitch: `Producto: Mawi · Módulo: Órdenes de Compra
+
+PROBLEMA
+• Sin trazabilidad de cambios: Hoy editar una OC sobreescribe los valores originales. No queda registro de qué cambió, cuándo ni por qué.
+• Sin documento formal: Los cambios de alcance con proveedores no generan documento con respaldo — el cliente lo gestiona fuera del sistema.
+• Cambios en presupuesto sin explicación: Al editar una OC el comprometido se actualiza, pero sin registro de qué lo originó ni quién lo autorizó.
+• Sin historial una vez que el contrato evoluciona: No hay forma de rastrear cambios formales de alcance.
+
+SOLUCIÓN
+Órdenes de cambio formales como documentos independientes con flujo de aprobación, versionado de la OC y trazabilidad completa en presupuesto.
+
+01 Flujo de aprobación — Borrador → Aprobación pendiente → Aprobado / Rechazado
+   Consecutivo: OC-{año}-{nro}-C{NNN} (ej. OC-2025-00349-C001)
+   Solo cambios aprobados impactan montos, presupuesto y versión de la OC.
+
+02 Formulario con tres grupos visuales
+   Contrato actual (solo lectura) / Cambio (editable +/−) / Contrato actualizado (calculado en tiempo real)
+   Líneas con avances registrados aparecen bloqueadas (badge + candado).
+
+03 Versionado de OC
+   V0 = contrato original. V1, V2... = cada OC-cambio aprobada.
+   Dropdown en pestaña Desglose OC para navegar versiones históricas.
+
+04 Pestaña Órdenes de cambio
+   Historial completo: pendientes primero, luego aprobadas y rechazadas.
+   Cards expandibles con desglose completo de líneas.
+
+05 Vista general de OC
+   Buzón de aprobaciones pendientes en la parte superior.
+   Columnas agrupadas: Inicial · Órdenes de cambio · Revisado.
+
+06 Monto comprometido con trazabilidad
+   Cada ajuste al comprometido queda vinculado a la OC-cambio aprobada: justificación + aprobador + fecha.
+
+FUERA DE ALCANCE — fase siguiente
+— PDF de historial acumulado de todos los cambios de una OC
+— Notificaciones en sistema (solo correo en esta fase)`,
+    spec: `## Objetivo
+Permitir modificar el alcance de una OC mediante órdenes de cambio formales, dejando trazabilidad completa de cada ajuste y reflejando el impacto en montos comprometidos, balances y vista general de OC.
+
+## Reglas de negocio
+
+Edición directa vs. orden de cambio
+- Edición directa: disponible mientras la OC no tenga ninguna OC-cambio aprobada. No genera historial. Al existir una aprobada, se deshabilita.
+- Orden de cambio: no modifica datos originales — registra el delta como documento independiente. Solo al aprobarse genera nueva versión y actualiza montos.
+
+Consecutivo: OC-{año}-{consecutivo_OC}-C{NNN} (ej. OC-2025-00349-C003). Secuencial por OC, incluye aprobadas y rechazadas.
+
+Versiones: V0 = contrato original. V1, V2... = cada OC-cambio aprobada. Siempre se toman valores de la última versión aprobada para tablas financieras.
+
+Aprobación
+- Sigue el mismo flujo configurado para la OC padre.
+- Quien crea la OC-cambio no puede ser quien la aprueba.
+- Estados: Borrador → Aprobación pendiente → Aprobado / Rechazado
+- Al aprobarse: nueva versión, recalcula approved_changes_total, revised_total y monto comprometido.
+- Al rechazarse: ninguna tabla financiera es afectada.
+
+Restricción — líneas con avance registrado
+- Casillas de +/− Cantidad y +/− P. unitario se deshabilitan.
+- La línea no puede eliminarse.
+- Agregar líneas nuevas sigue permitido.
+- Validación en frontend (UI bloqueada) y backend (rechazo por API).
+
+## Cálculo de montos
+- Total inicial OC: monto original V0, inmutable.
+- Órdenes de cambio aprobadas: Σ deltas de todas las OC-cambio aprobadas.
+- Total revisado OC: Total inicial + Órdenes de cambio aprobadas.
+- Monto asociado: Σ facturas asociadas (sin cambio).
+- Balance global: Total revisado − Monto asociado.
+- Monto comprometido: = Total revisado, desglosado por línea de presupuesto.
+
+## Modelo de datos
+
+Tabla nueva: purchase_order_changes
+  id (UUID PK), purchase_order_id (FK), code (string), version_number (int),
+  status (draft | pending_approval | approved | rejected), justification (text),
+  created_by (FK), approved_by (FK nullable), approved_at (timestamp nullable), created_at
+
+Tabla nueva: purchase_order_change_lines
+  id (UUID PK), change_id (FK), purchase_order_line_id (FK nullable),
+  description, original_qty, original_unit_price, delta_qty, delta_unit_price,
+  new_qty (original + delta, calculado), new_unit_price (calculado),
+  delta_amount: (new_qty × new_price) − (orig_qty × orig_price)
+
+Campos nuevos en purchase_orders
+  current_version (int), approved_changes_total (decimal), revised_total (decimal)
+
+## Cambios UI — Detalle de OC
+- Header: mostrar Total inicial OC, Total revisado OC (cuando approved_changes_total ≠ 0), badge V{n}, badge "N cambio(s) pendiente(s)".
+- Pestaña Desglose OC: dropdown de versión cuando current_version > 0. Por defecto carga versión vigente.
+- Nueva pestaña Órdenes de cambio: entre Desglose OC y Facturas asociadas.
+  Orden: pendientes primero → aprobadas → rechazadas, por fecha desc.
+- Pestaña Facturas: tabla resumen incluye Total inicial, Cambios aprobados, Total revisado, Monto asociado, Balance, Comprometido.
+
+## Cambios UI — Vista general de OC
+- Columnas renombradas: Total CRC → Total inicial [moneda 1], Monto total → Inicial convertido.
+- Columnas nuevas agrupadas: OC cambio aprobadas [m1/m2], Total revisado [m1/m2], Revisado convertido.
+- Nueva columna Estado órdenes de cambio: Aprobación pendiente (amarillo) / Aprobado (verde) / — (sin cambios).
+- Buzón de pendientes: banner superior cuando hay ≥1 OC-cambio pendiente. Filtra la tabla al hacer clic.
+
+## Exportación PDF por OC-cambio
+Disponible para cada OC-cambio aprobada. Contenido: datos OC padre, código OC-cambio, fecha aprobación, aprobador, justificación, tabla de líneas (original → delta → nuevo), resumen financiero.
+
+## Fuera de alcance — fase siguiente
+- PDF de historial acumulado de todos los cambios de una OC.
+- Notificaciones en sistema (solo correo en esta fase).`
+  }
+  ,{
+    id: 4, name: 'UX Solicitudes de Materiales', stage: 'pitchdev',
+    desc: 'Actualización UX de la vista de pedidos: migración a tabla, acciones masivas, crear pedido manual y carga por PDF.',
+    leadTech: null, leadProduct: null, phase: null, totalPhases: null, parentId: 1, updated: '2026-03-20',
+    startDate: null, dueDate: null, alcance: [],
+
+    ideas: [], feedback: [], pitch: `## Alcance
+La funcionalidad general de recepción de pedidos de WhatsApp se mantiene tal como está. Se actualiza principalmente el UX y se agregan funcionalidades secundarias.
+
+Figma: https://www.figma.com/design/desybd1k5aDiVxryK8DEbB/Proyecto?node-id=9907-42237
+
+---
+
+## 1. Estructura de la vista de pedidos
+- Migrar estructura actual de pedidos a tabla.
+- Por defecto, pedidos agrupados por # de pedido, mostrando en cada encabezado la fecha de solicitud y el solicitante.
+- Agrupar por: los usuarios pueden eliminar la agrupación y ver un listado completo de materiales para ordenar y manipular libremente.
+
+Columnas:
+- Descripción: material solicitado
+- Cantidad: volumen solicitado
+- Unidad: unidad de medida
+- Código asociado
+- Etapa: estado del material en el flujo (cotización, OC, etc.)
+
+Interacciones adicionales:
+- Expandir/colapsar todos los pedidos con flecha global.
+- Persistencia de configuración: agrupación, ordenamiento y otras preferencias se guardan automáticamente por usuario.
+
+---
+
+## 2. Consecutivos pedidos de materiales
+Mantener lógica actual.
+
+---
+
+## 3. Funcionalidades por solicitud
+Editar, Duplicar, Crear cotización (existente), Crear orden de compra (existente).
+- Seleccionar materiales de diferentes solicitudes para crear una OC/cotización.
+- Back-end: al crear cotización/OC desde solicitud, guardar la asociación de la solicitud a cada línea.
+
+Editar:
+- Permitir editar descripción, cantidad, unidad y código asociado.
+- Solo se habilita la edición de un pedido a la vez (no masiva).
+- Se pueden agregar o eliminar líneas.
+- NOTA: Figma muestra edición en tabla, pero en prod tenemos modal. Se mantiene el modal por ahora.
+
+Duplicar:
+- Genera copia del pedido con nuevo consecutivo, fecha y solicitante del usuario que duplica.
+
+Eliminar:
+- Eliminar pedido completo (aunque tenga cotizaciones u OC generadas — esas no se ven afectadas).
+- Modal de confirmación al eliminar pedido completo.
+- Modal de confirmación al eliminar línea individual.
+
+---
+
+## 4. Acciones masivas
+Al hacer clic en los checks de la lista de materiales:
+
+Cotizar:
+- Al seleccionar múltiples ítems, se precarga un formulario de cotización con la selección.
+- En cotizaciones, agregar columna "Código asociado" en formulario de creación y vista show (tabla de desglose).
+
+Crear orden de compra:
+- Seleccionar ítems de múltiples pedidos para generar una nueva OC, precargando la tabla automáticamente.
+- Amplía la funcionalidad actual (limitada a pedidos completos).
+
+---
+
+## 5. Crear pedido desde Mawi
+
+Crear desde texto: funcionalidad existente, se mantiene.
+
+Crear manual:
+- Modo de edición directo en tabla.
+- Al iniciar nuevo pedido, se precargan # pedido, fecha y solicitante.
+- El usuario agrega y completa líneas directamente en la tabla.
+
+Cargar solicitud:
+- Habilitar creación de pedido mediante lectura de PDF/imagen (igual que en gastos).
+
+Buscador:
+- Agregar buscador a la tabla para buscar por consecutivo de solicitud o descripción de material.
+
+---
+
+## Futuro (fuera del alcance v1)
+1. Configuración de aprobación
+2. Agregar columna de clave a solicitudes
+3. Unificación de materiales con misma clave al crear OC/Cotización`, spec: null
+  },
+  {
+    id: 5, name: 'Estructura Datos Catálogo de Materiales', stage: 'pitchdev',
+    desc: 'Diseño del objeto material con clave única, flujo de aprobación al catálogo e integraciones con Inventario y Listado de Materiales.',
+    leadTech: 'Adrian', leadProduct: null, phase: null, totalPhases: null, parentId: 1, updated: '2026-03-20',
+    startDate: null, dueDate: null, alcance: [],
+    ideas: [], feedback: [], pitch: `## Pitch en Proceso
+
+### Catálogo de Materiales — Objeto Material con Clave
+
+El catálogo de materiales es la fuente única de verdad para todos los materiales utilizados en los proyectos. Cada material debe tener una clave única que lo identifique y permita trazabilidad a lo largo de los módulos.
+
+---
+
+### Puntos Clave a Resolver
+
+**1. Envío de materiales al catálogo**
+Definir el flujo por el cual un material puede ser propuesto para ingresar al catálogo: quién lo envía, qué información mínima debe incluir (nombre, clave, unidad, categoría), y desde qué módulos se puede iniciar este envío.
+
+**2. Buzón de aprobación de materiales enviados al catálogo**
+Se requiere un flujo de aprobación para los materiales enviados al catálogo antes de que queden disponibles para ser usados en otros módulos. Definir quién aprueba, qué información se valida, y qué sucede si se rechaza.
+
+**3. ¿Qué pasa si se editó el código de un material del catálogo?**
+Caso crítico: si un material ya fue utilizado en solicitudes, órdenes de compra o inventario, y su clave es modificada, ¿cómo se propaga ese cambio? ¿Se actualiza automáticamente en todos los registros relacionados o se mantiene la referencia histórica? Definir política de edición de claves.
+
+---
+
+### Integraciones con Otros Módulos
+
+**Inventario**
+Reporte de data de entradas. A los registros de inventario se les puede hacer una asignación a un material existente del catálogo, permitiendo vincular las entradas físicas con la ficha del material en el catálogo.
+
+**Listado de Materiales**
+Reporte de líneas insumo tipo material del proyecto. A estas líneas se les puede hacer una asignación a un material existente del catálogo, consolidando la información del proyecto con el catálogo central.`, spec: null
+  }
+];
+
+let feedbackItems = [];
+
+let nextId = 6;
+let nextFbId = 4;
+let nextAlcanceId = 1;
+let currentView = 'kanban';
+let selectedProjectId = null;
+let activeModalTab = 'contexto';
+let searchQ = '';
+
+// ──────────────────────────────────────────────
+// UTILITIES
+// ──────────────────────────────────────────────
+function getProject(id) { return projects.find(p => p.id === id); }
+function getSubprojects(parentId) { return projects.filter(p => p.parentId === parentId); }
+function fmt(dateStr) { if (!dateStr) return '—'; const d = new Date(dateStr + 'T00:00:00'); const days = Math.floor((new Date() - d) / 86400000); return days === 0 ? 'Hoy' : days === 1 ? 'Ayer' : `Hace ${days}d`; }
+function initials(name) { if (!name) return '?'; return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toast(msg, emoji='✅') {
+  const t = document.getElementById('toast');
+  t.innerHTML = emoji + ' ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function getDateStatus(p) {
+  // Returns { label, color, bg, border } or null
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = p.dueDate ? new Date(p.dueDate + 'T00:00:00') : null;
+ #const started = p.startDate ? new Date(p.startDate + 'T00:00:00') : null;
+  const isProd = p.stage === 'produccion';
+  const inDev = p.stage === 'desarrollo';
+
+  if (isProd) {
+    // Finished — check if was late
+    if (due && due < today) {
+      return { label: '⚠️ Finalizado con retraso', color: '#b45309', bg: '#fef3c7', border: '#fcd34d' };
+    }
+    return { label: '✅ Finalizado', color: '#065f46', bg: '#d1fae5', border: '#6ee7b7' };
+  }
+  if (due) {
+    if (due < today) {
+      return { label: '🔴 Retrasado', color: '#991b1b', bg: '#fee2e2', border: '#fca5a5' };
+    }
+    if (inDev && started && started <= today) {
+      return { label: '🟢 A tiempo', color: '#065f46', bg: '#d1fae5', border: '#6ee7b7' };
+    }
+    return { label: '⏳ Pendiente', color: '#4338ca', bg: '#e0e7ff', border: '#a5b4fc' };
+  }
+  return null;
+}
+
+function filteredProjects() {
+  if (!searchQ) return projects;
+  const q = searchQ.toLowerCase();
+  return projects.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || (p.leadTech||'').toLowerCase().includes(q) || (p.leadProduct||'').toLowerCase().includes(q));
+}
+
+// ──────────────────────────────────────────────
+// STATS BAR
+// ──────────────────────────────────────────────
+function renderStats() {
+  const counts = { ideacion: 0, pitchdev: 0, pitch: 0, desarrollo: 0, produccion: 0 };
+  projects.forEach(p => counts[p.stage]++);
+  const labels = { ideacion: 'Ideación', pitchdev: 'Pitch en Dev', pitch: 'Pitch Listo', desarrollo: 'En Desarrollo', produccion: 'En Producción' };
+  const subs = { ideacion: 'Ideas activas', pitchdev: 'Estructurando pitch', pitch: 'Esperando desarrollo', desarrollo: 'Con equipo dev', produccion: 'Live 🟢' };
+  document.getElementById('statsBar').innerHTML = Object.entries(counts).map(([k,v]) =>
+    `<div class="stat ${k}" onclick="filterByStage('${k}')"><div class="stat-label">${labels[k]}</div><div class="stat-num">${v}</div><div class="stat-sub">${subs[k]}</div></div>`
+  ).join('');
+  document.getElementById('badge-kanban').textContent = projects.length;
+  document.getElementById('badge-tabla').textContent = projects.length;
+  document.getElementById('badge-feedback').textContent = feedbackItems.filter(f=>!f.projectId).length || feedbackItems.length;
+}
+
+// ──────────────────────────────────────────────
+// KANBAN
+// ──────────────────────────────────────────────
+function renderKanban() {
+  const fp = filteredProjects();
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = Object.entries(STAGES).map(([stageKey, stageInfo]) => {
+    const inStage = fp.filter(p => p.stage === stageKey);
+    // Parents first, then orphan subprojects (subprojects shown under their parent if parent is in same stage)
+    const parents = inStage.filter(p => !p.parentId);
+    const soloSubs = inStage.filter(p => p.parentId && !fp.find(pp => pp.id === p.parentId && pp.stage === stageKey));
+    let cards = '';
+    parents.forEach(p => {
+      cards += projectCard(p);
+      // Show subprojects of this parent that are in THIS same stage column
+      const childrenHere = inStage.filter(c => c.parentId === p.id);
+      childrenHere.forEach(c => { cards += projectCard(c); });
+    });
+    soloSubs.forEach(p => { cards += projectCard(p); });
+    const total = inStage.length;
+    const empty = total === 0 ? `<div class="empty-drop" onclick="openNewModalForStage('${stageKey}')">+ Nueva idea</div>` : '';
+    return `<div class="kanban-col">
+      <div class="kanban-header ${stageKey}">
+        ${stageInfo.label} <span class="k-count">${total}</span>
+      </div>
+      ${cards}${empty}
+    </div>`;
+  }).join('');
+}
+
+function projectCard(p) {
+  const stage = STAGES[p.stage];
+  const subs = getSubprojects(p.id);
+  const parent = p.parentId ? getProject(p.parentId) : null;
+
+  // Parent tag for subprojects
+  let parentTag = '';
+  if (parent) parentTag = `<div class="sub-parent-tag">↳ ${escH(parent.name)}</div>`;
+
+  let extras = '';
+  if (p.feedback && p.feedback.length > 0) extras += `<span class="badge badge-amber">💬 ${p.feedback.length} feedback</span>`;
+  if (p.leadTech) extras += `<span class="badge" style="background:#dbeafe;color:#1e40af">⚙️ ${escH(p.leadTech.split(' ')[0])}</span>`;
+  if (p.leadProduct) extras += `<span class="badge" style="background:#f0fdf4;color:#166534">📋 ${escH(p.leadProduct.split(' ')[0])}</span>`;
+  if (p.pitch) extras += `<span class="badge badge-green" style="background:#f0fdf4;color:#166534">📄 Pitch</span>`;
+  const ds = getDateStatus(p);
+  if (ds) extras += `<span class="badge" style="background:${ds.bg};color:${ds.color};border:1px solid ${ds.border}">${ds.label}</span>`;
+  if (subs.length > 0) {
+    const done = subs.filter(s => s.stage === 'produccion').length;
+    extras += `<span class="sub-count-badge">🔀 ${subs.length} sub${subs.length > 1 ? 's' : ''} · ${done}/${subs.length} ✓</span>`;
+  }
+
+  let phaseBar = '';
+  if (p.phase && p.totalPhases) {
+    const pct = Math.round((p.phase / p.totalPhases) * 100);
+    phaseBar = `<div class="phase-bar"><div class="phase-track"><div class="phase-fill" style="width:${pct}%"></div></div><div class="phase-label">Fase ${p.phase} de ${p.totalPhases}</div></div>`;
+  }
+  const isSubClass = parent ? ' is-sub' : '';
+  return `<div class="project-card ${p.stage}${isSubClass}" onclick="openProject(${p.id})">
+    ${parentTag}
+    <div class="card-name">${escH(p.name)}</div>
+    <div class="card-desc">${escH(p.desc)}</div>
+    <div class="card-footer">${extras}<span class="card-date">${fmt(p.updated)}</span></div>
+    ${phaseBar}
+  </div>`;
+}
+
+function filterByStage(stage) {
+  searchQ = '';
+  document.getElementById('searchInput').value = '';
+  switchView('kanban');
+  // highlight — just scroll into view for now
+}
+
+// ──────────────────────────────────────────────
+// TABLE
+// ──────────────────────────────────────────────
+function renderTable() {
+  const fp = filteredProjects();
+  document.getElementById('tableCount').textContent = `${fp.length} proyecto${fp.length !== 1 ? 's' : ''}`;
+  document.getElementById('tableBody').innerHTML = fp.map(p => {
+    const st = STAGES[p.stage];
+    const parent = p.parentId ? getProject(p.parentId) : null;
+    const subs = getSubprojects(p.id);
+    const ltCell = p.leadTech ? `<div class="lead-tag"><div class="avatar" style="background:#2563eb">${initials(p.leadTech)}</div><span style="font-size:12px">${escH(p.leadTech)}</span></div>` : '';
+    const lpCell = p.leadProduct ? `<div class="lead-tag" style="margin-top:2px"><div class="avatar" style="background:#059669">${initials(p.leadProduct)}</div><span style="font-size:12px">${escH(p.leadProduct)}</span></div>` : '';
+    const leadCell = (ltCell || lpCell) ? ltCell + lpCell : '<span style="color:var(--muted);font-size:13px">—</span>';
+    const phaseCell = (p.phase && p.totalPhases) ? `Fase ${p.phase}/${p.totalPhases}` : '—';
+    const fbCount = (p.feedback||[]).length;
+    let nameCell = `<strong>${escH(p.name)}</strong><div style="font-size:12px;color:var(--muted);margin-top:2px">${escH(p.desc)}</div>`;
+    if (parent) nameCell = `<div style="font-size:11px;color:var(--primary);font-weight:600;margin-bottom:2px">↳ ${escH(parent.name)}</div>` + nameCell;
+    let subsCell = '—';
+    if (subs.length > 0) {
+      const done = subs.filter(s => s.stage === 'produccion').length;
+      subsCell = `<span class="sub-count-badge">🔀 ${subs.length} · ${done}/${subs.length} ✓</span>`;
+    } else if (parent) {
+      subsCell = `<span style="font-size:11px;color:var(--muted)">subproyecto</span>`;
+    }
+    const rowStyle = parent ? ' style="background:#fafbff"' : '';
+    return `<tr onclick="openProject(${p.id})"${rowStyle}>
+      <td>${nameCell}</td>
+      <td><span class="stage-pill ${p.stage}">${st.icon} ${st.label.replace(/^.+\s/,'')}</span></td>
+      <td>${leadCell}</td>
+      <td style="color:var(--muted);font-size:13px">${phaseCell}</td>
+      <td>${subsCell}</td>
+      <td>${fbCount > 0 ? `<span class="badge badge-amber">💬 ${fbCount}</span>` : '<span style="color:var(--muted);font-size:13px">—</span>'}</td>
+      <td>${(()=>{ const ds=getDateStatus(p); return ds ? `<span class="badge" style="background:${ds.bg};color:${ds.color};border:1px solid ${ds.border};font-size:11px">${ds.label}</span>` : '<span style="color:var(--muted);font-size:13px">—</span>'; })()}</td>
+      <td style="color:var(--muted);font-size:13px">${fmt(p.updated)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ──────────────────────────────────────────────
+// FEEDBACK INBOX
+// ──────────────────────────────────────────────
+function renderFeedbackSelect() {
+  const sel = document.getElementById('fbProject');
+  const stageOrder = ['ideacion','pitch','desarrollo','produccion'];
+  const sorted = [...projects].sort((a,b) => stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage));
+  sel.innerHTML = '<option value="">— Asignar a proyecto —</option>' +
+    sorted.map(p => `<option value="${p.id}">${STAGES[p.stage].icon} ${escH(p.name)}</option>`).join('');
+}
+
+function renderFeedbackList() {
+  const list = document.getElementById('feedbackList');
+  if (feedbackItems.length === 0) {
+    list.innerHTML = '<div class="inbox-empty">No hay feedback asignado todavía.<br>Pega mensajes de Slack o email para empezar. 👈</div>';
+    return;
+  }
+  list.innerHTML = feedbackItems.map(f => {
+    const proj = f.projectId ? getProject(f.projectId) : null;
+    const projLabel = proj ? `<span class="feedback-proj">${STAGES[proj.stage].icon} ${escH(proj.name)}</span>` : '<span style="color:#ef4444;font-weight:600">Sin asignar</span>';
+    return `<div class="feedback-item">
+      <div class="feedback-item-text">${escH(f.text)}</div>
+      <div class="feedback-item-meta">
+        <span>📍 ${escH(f.source)}</span>
+        <span>·</span>
+        ${projLabel}
+        <span>·</span>
+        <span>${fmt(f.date)}</span>
+        <button class="remove-feedback" onclick="removeFeedback(${f.id})" title="Eliminar">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addFeedback() {
+  const text = document.getElementById('fbText').value.trim();
+  const projId = parseInt(document.getElementById('fbProject').value) || null;
+  const source = document.getElementById('fbSource').value;
+  if (!text) { toast('Escribe o pega el feedback primero', '⚠️'); return; }
+
+  const item = { id: nextFbId++, text, source, projectId: projId, date: new Date().toISOString().split('T')[0] };
+  feedbackItems.unshift(item);
+
+  if (projId) {
+    const proj = getProject(projId);
+    if (proj) {
+      proj.feedback = proj.feedback || [];
+      proj.feedback.push(text);
+      proj.updated = item.date;
+    }
+    toast(`Feedback asignado a "${getProject(projId)?.name}"`, '📌');
+  } else {
+    toast('Feedback guardado (sin proyecto asignado)', '💬');
+  }
+
+  document.getElementById('fbText').value = '';
+  document.getElementById('fbProject').value = '';
+  renderAll();
+}
+
+function removeFeedback(id) {
+  feedbackItems = feedbackItems.filter(f => f.id !== id);
+  saveState();
+  renderFeedbackList();
+  renderStats();
+  toast('Feedback eliminado', '🗑');
+}
+
+// ──────────────────────────────────────────────
+// PROJECT MODAL
+// ──────────────────────────────────────────────
+function openProject(id) {
+  selectedProjectId = id;
+  activeModalTab = 'contexto';
+  renderModal();
+  document.getElementById('projectOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('projectOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  selectedProjectId = null;
+  renderAll();
+}
+
+function renderModal() {
+  const p = getProject(selectedProjectId);
+  if (!p) return;
+  saveState();
+  const st = STAGES[p.stage];
+  document.getElementById('modalName').textContent = p.name;
+
+  // Meta
+  const techOpts = ['Owen','Bairon','Adrian','Alberto','Sergio','Angel'].map(n => `<option value="${n}"${p.leadTech===n?' selected':''}>${n}</option>`).join('');
+  const prodOpts = ['Gloriana','Sergio'].map(n => `<option value="${n}"${p.leadProduct===n?' selected':''}>${n}</option>`).join('');
+  let meta = `<span class="stage-pill ${p.stage}">${st.icon} ${st.label.replace(/^.+\s/,'')}</span>`;
+  meta += `<select class="lead-sel tech${p.leadTech?'':' empty'}" onchange="changeLeadTech(this.value)" title="Lead Técnico"><option value="">⚙️ Lead Dev</option>${techOpts}</select>`;
+  meta += `<select class="lead-sel product${p.leadProduct?'':' empty'}" onchange="changeLeadProduct(this.value)" title="Lead Producto"><option value="">📋 Lead Producto</option>${prodOpts}</select>`;
+  if (p.phase && p.totalPhases) meta += `<span class="badge badge-gray">Fase ${p.phase}/${p.totalPhases}</span>`;
+  meta += `<span class="date-field"><label>Inicio</label><input type="date" value="${p.startDate||''}" onchange="changeDateField('startDate',this.value)" title="Fecha de inicio"></span>`;
+  meta += `<span class="date-field"><label>Entrega</label><input type="date" value="${p.dueDate||''}" onchange="changeDateField('dueDate',this.value)" title="Fecha de entrega"></span>`;
+  const dStatus = getDateStatus(p);
+  if (dStatus) meta += `<span class="badge" style="background:${dStatus.bg};color:${dStatus.color};border:1px solid ${dStatus.border}">${dStatus.label}</span>`;
+  meta += `<span style="font-size:12px;color:var(--muted)">Actualizado ${fmt(p.updated)}</span>`;
+  document.getElementById('modalMeta').innerHTML = meta;
+
+  // Tabs active state
+  document.querySelectorAll('.modal-tab').forEach((t,i) => {
+    const tabs = ['contexto','brainstorm','feedback','pitch','subproyectos','alcance'];
+    t.classList.toggle('active', tabs[i] === activeModalTab);
+  });
+  // Show subproyectos tab count
+  const subCount = getSubprojects(p.id).length;
+  const subTabEl = document.getElementById('tabSubproyectos');
+  if (subTabEl) subTabEl.textContent = subCount > 0 ? `Subproyectos (${subCount})` : 'Subproyectos';
+  const alcanceCount = (p.alcance||[]).length;
+  const alcanceDone = (p.alcance||[]).filter(a=>a.done).length;
+  const alcanceTabEl = document.getElementById('tabAlcance');
+  if (alcanceTabEl) alcanceTabEl.textContent = alcanceCount > 0 ? `Alcance (${alcanceDone}/${alcanceCount})` : 'Alcance';
+
+  // Body
+  renderModalTab(p);
+
+  // Stage buttons
+  document.getElementById('stageBtns').innerHTML = Object.entries(STAGES).filter(([k]) => k !== p.stage).map(([k,v]) =>
+    `<button class="stage-btn ${k}" onclick="changeStage('${k}')">${v.icon} ${v.label.replace(/^.+\s/,'')}</button>`
+  ).join('');
+}
+
+function renderModalTab(p) {
+  const body = document.getElementById('modalBody');
+
+  if (activeModalTab === 'contexto') {
+    let phaseHtml = '';
+    if (p.phase && p.totalPhases) {
+      const pct = Math.round((p.phase / p.totalPhases) * 100);
+      phaseHtml = `<div class="section-h">Progreso</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:8px"><span>Fase ${p.phase} de ${p.totalPhases}</span><span style="color:var(--c-desarrollo)">${pct}%</span></div>
+        <div class="phase-track"><div class="phase-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }
+
+    const parentProj = p.parentId ? getProject(p.parentId) : null;
+    const parentSection = parentProj ? `
+      <div class="section-h">Proyecto padre</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--primary-bg);border:1px solid #c7d2fe;border-radius:8px;cursor:pointer;margin-bottom:4px" onclick="closeModal();setTimeout(()=>openProject(${parentProj.id}),50)">
+        <div>
+          <div style="font-weight:700;font-size:14px">${escH(parentProj.name)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px"><span class="stage-pill ${parentProj.stage}" style="font-size:11px;padding:1px 7px">${STAGES[parentProj.stage].icon} ${STAGES[parentProj.stage].label.replace(/^.+\s/,'')}</span></div>
+        </div>
+        <span style="color:var(--primary);font-size:14px">→</span>
+      </div>` : '';
+    body.innerHTML = `
+      ${parentSection}
+      <div class="section-h">Descripción</div>
+      <p style="font-size:14px;line-height:1.6;color:var(--text)">${escH(p.desc) || '<span style="color:var(--muted)">Sin descripción</span>'}</p>
+      ${phaseHtml}
+      <div class="section-h" style="margin-top:16px">Actividad</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+        <div style="text-align:center;padding:12px 8px;background:var(--c-ideacion-bg);border:1px solid var(--c-ideacion-border);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--c-ideacion)">${(p.ideas||[]).length}</div><div style="font-size:11px;color:var(--c-ideacion);font-weight:600;margin-top:2px">Ideas</div></div>
+        <div style="text-align:center;padding:12px 8px;background:var(--c-pitch-bg);border:1px solid var(--c-pitch-border);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--c-pitch)">${(p.feedback||[]).length}</div><div style="font-size:11px;color:var(--c-pitch);font-weight:600;margin-top:2px">Feedbacks</div></div>
+        <div style="text-align:center;padding:12px 8px;background:var(--c-produccion-bg);border:1px solid var(--c-produccion-border);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--c-produccion)">${p.pitch ? '✓' : '—'}</div><div style="font-size:11px;color:var(--c-produccion);font-weight:600;margin-top:2px">Pitch</div></div>
+        <div style="text-align:center;padding:12px 8px;background:var(--bg);border:1px solid var(--border);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--primary)">${getSubprojects(p.id).length}</div><div style="font-size:11px;color:var(--primary);font-weight:600;margin-top:2px">Subs</div></div>
+      </div>`;
+
+  } else if (activeModalTab === 'brainstorm') {
+    const ideas = p.ideas || [];
+    const ideaItems = ideas.length > 0
+      ? `<ul class="idea-list">${ideas.map(i=>`<li class="idea-item"><span class="idea-dot"></span><span>${escH(i)}</span></li>`).join('')}</ul>`
+      : `<div class="empty-state">No hay ideas registradas todavía.<br>¡Empieza a hacer brainstorm con Claude y añade las ideas aquí!</div>`;
+
+    body.innerHTML = `
+      <div class="section-h">Ideas del brainstorm</div>
+      ${ideaItems}
+      <div class="section-h mt8">Agregar idea</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="newIdea" placeholder="Nueva idea..." onkeydown="if(event.key==='Enter')addIdea()">
+        <button class="btn btn-primary btn-sm" onclick="addIdea()">Añadir</button>
+      </div>`;
+
+  } else if (activeModalTab === 'feedback') {
+    const fbs = p.feedback || [];
+    const fbItems = fbs.length > 0
+      ? fbs.map(f=>`<div class="feedback-quote"><span class="q-icon">💬</span><span>${escH(f)}</span></div>`).join('')
+      : `<div class="empty-state">No hay feedback asignado a este proyecto todavía.<br>Ve a <strong>Feedback Inbox</strong> para asignar mensajes de Slack o email.</div>`;
+
+    body.innerHTML = `
+      <div class="section-h">Feedback de clientes y equipo (${fbs.length})</div>
+      ${fbItems}
+      <div class="section-h mt8">Agregar feedback manual</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="newFb" placeholder="Pega o escribe el feedback..." onkeydown="if(event.key==='Enter')addManualFeedback()">
+        <button class="btn btn-primary btn-sm" onclick="addManualFeedback()">Añadir</button>
+      </div>`;
+
+  } else if (activeModalTab === 'subproyectos') {
+    const subs = getSubprojects(p.id);
+    const stageOrder = Object.keys(STAGES);
+
+    // Group by stage, only show stages that have subprojects
+    let grouped = '';
+    stageOrder.forEach(stKey => {
+      const inStage = subs.filter(s => s.stage === stKey);
+      if (inStage.length === 0) return;
+      const st = STAGES[stKey];
+      grouped += `<div class="sub-group-h"><span class="stage-pill ${stKey}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.label.replace(/^.+\s/,'')}</span><span style="font-weight:400">${inStage.length}</span></div>`;
+      inStage.forEach(s => {
+        grouped += `<div class="sub-mini-row" onclick="openProject(${s.id})">
+          <div class="sub-mini-name">${escH(s.name)}</div>
+          <div class="sub-mini-meta">
+            ${s.lead ? `<span class="badge badge-blue" style="font-size:11px">👤 ${escH(s.lead.split(' ')[0])}</span>` : ''}
+            <span style="font-size:11px;color:var(--muted)">${fmt(s.updated)}</span>
+            <span style="font-size:12px;color:var(--primary)">→</span>
+          </div>
+        </div>`;
+      });
+    });
+
+    const emptyState = subs.length === 0
+      ? `<div class="empty-state">No hay subproyectos todavía.<br>Crea el primero desde el pitch o usa el botón de abajo.</div>`
+      : '';
+
+    // Summary mini-progress if there are subs
+    let summary = '';
+    if (subs.length > 0) {
+      summary = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">` +
+        stageOrder.map(stKey => {
+          const n = subs.filter(s => s.stage === stKey).length;
+          if (n === 0) return '';
+          const st = STAGES[stKey];
+          return `<span style="font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:4px 10px">${st.icon} ${n}</span>`;
+        }).join('') + `</div>`;
+    }
+
+    body.innerHTML = `
+      ${summary}${emptyState}${grouped}
+      <div class="sub-add-row">
+        <input type="text" id="newSubName" placeholder="Nombre del subproyecto..." onkeydown="if(event.key==='Enter')addSubproject()" style="flex:1">
+        <select id="newSubStage" style="width:160px">
+          ${stageOrder.map(k => `<option value="${k}">${STAGES[k].icon} ${STAGES[k].label.replace(/^.+\s/,'')}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="addSubproject()">+ Subproyecto</button>
+      </div>`;
+
+  } else if (activeModalTab === 'pitch') {
+    const hasPitch = p.pitch || p.spec;
+    if (hasPitch) {
+      body.innerHTML = `
+        ${p.pitch ? `<div class="section-h">Pitch</div><div class="spec-box">${escH(p.pitch)}</div>` : ''}
+        ${p.spec ? `<div class="section-h">Spec técnica</div><div class="spec-box">${escH(p.spec)}</div>` : ''}
+        <div style="margin-top:16px;padding:12px;background:#eff6ff;border:1px solid var(--c-desarrollo-border);border-radius:8px;font-size:13px;color:var(--c-desarrollo)">
+          💡 <strong>Tip:</strong> Usa el botón <strong>"Copiar para Linear"</strong> abajo para copiar esto en formato listo para pegar en una issue de Linear.
+        </div>`;
+    } else {
+      body.innerHTML = `<div class="empty-state">No hay pitch ni spec para este proyecto todavía.<br><br>Trabaja con Claude para estructurar la idea y luego añade el pitch aquí.<br><br>Cuando lo tengas listo, aparecerá el botón <strong>"Copiar para Linear"</strong>.</div>
+        <div class="section-h mt8">Borrador de pitch</div>
+        <textarea id="pitchDraft" style="height:120px" placeholder="Escribe el pitch aquí (problema, solución, impacto, timeline)..."></textarea>
+        <div class="section-h">Borrador de spec</div>
+        <textarea id="specDraft" style="height:100px" placeholder="Requerimientos técnicos, fases, out of scope..."></textarea>
+        <div style="margin-top:10px;text-align:right"><button class="btn btn-primary btn-sm" onclick="saveDraft()">Guardar borrador</button></div>`;
+    }
+  } else if (activeModalTab === 'alcance') {
+    const alcance = p.alcance || [];
+    const subs = getSubprojects(p.id);
+    const doneCount = alcance.filter(a => a.done).length;
+
+    const progressBar = alcance.length > 0
+      ? `<div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:6px">
+            <span style="color:var(--muted)">${doneCount}/${alcance.length} completados</span>
+            <span style="color:var(--c-desarrollo)">${Math.round(doneCount/alcance.length*100)}%</span>
+          </div>
+          <div class="phase-track"><div class="phase-fill" style="width:${Math.round(doneCount/alcance.length*100)}%"></div></div>
+        </div>`
+      : '';
+
+    const assignOpts = (proj) => [
+      `<option value="${proj.id}"${proj.id===proj.id?' selected':''}>📦 ${escH(proj.name)}</option>`,
+      ...subs.map(s => `<option value="${s.id}">↳ ${escH(s.name)}</option>`)
+    ].join('');
+
+    const items = alcance.length > 0
+      ? alcance.map(a => {
+          const assignSelect = [
+            `<option value="${p.id}"${(!a.assignedTo||a.assignedTo===p.id)?' selected':''}>📦 ${escH(p.name)}</option>`,
+            ...subs.map(s=>`<option value="${s.id}"${a.assignedTo===s.id?' selected':''}>↳ ${escH(s.name)}</option>`)
+          ].join('');
+          return `<div class="alcance-item">
+            <input type="checkbox" class="alcance-check" ${a.done?'checked':''} onchange="toggleAlcanceItem(${a.id})">
+            <span class="alcance-text${a.done?' done':''}">${escH(a.text)}</span>
+            <select class="alcance-assign" onchange="assignAlcanceItem(${a.id},parseInt(this.value))" title="Asignar a proyecto/subproyecto">${assignSelect}</select>
+            <button class="alcance-del" onclick="deleteAlcanceItem(${a.id})" title="Eliminar">✕</button>
+          </div>`;
+        }).join('')
+      : `<div class="empty-state">No hay ítems de alcance todavía.<br>Agrega los puntos clave que este proyecto debe cumplir.</div>`;
+
+    body.innerHTML = `
+      ${progressBar}
+      ${items}
+      <div class="alcance-add-row">
+        <input type="text" id="newAlcanceText" placeholder="Agregar punto de alcance..." onkeydown="if(event.key==='Enter')addAlcanceItem()" style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="addAlcanceItem()">+ Agregar</button>
+      </div>`;
+  }
+}
+
+function switchModalTab(tab) {
+  activeModalTab = tab;
+  renderModal();
+}
+
+function addIdea() {
+  const input = document.getElementById('newIdea');
+  const text = input.value.trim();
+  if (!text) return;
+  const p = getProject(selectedProjectId);
+  p.ideas = p.ideas || [];
+  p.ideas.push(text);
+  p.updated = new Date().toISOString().split('T')[0];
+  input.value = '';
+  renderModal();
+  toast('Idea añadida', '💡');
+}
+
+function addManualFeedback() {
+  const input = document.getElementById('newFb');
+  const text = input.value.trim();
+  if (!text) return;
+  const p = getProject(selectedProjectId);
+  p.feedback = p.feedback || [];
+  p.feedback.push(text);
+  p.updated = new Date().toISOString().split('T')[0];
+
+  feedbackItems.unshift({ id: nextFbId++, text, source: 'Manual', projectId: selectedProjectId, date: p.updated });
+  input.value = '';
+  renderModal();
+  toast('Feedback añadido', '💬');
+}
+
+function addSubproject() {
+  const nameEl = document.getElementById('newSubName');
+  const stageEl = document.getElementById('newSubStage');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const stage = stageEl ? stageEl.value : 'ideacion';
+  if (!name) { toast('Escribe el nombre del subproyecto', '⚠️'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  const sub = {
+    id: nextId++, name, stage,
+    desc: '', leadTech: null, leadProduct: null, phase: null, totalPhases: null,
+    parentId: selectedProjectId, updated: today,
+    startDate: null, dueDate: null, alcance: [],
+
+    ideas: [], feedback: [], pitch: null, spec: null
+  };
+  projects.push(sub);
+  if (nameEl) nameEl.value = '';
+  renderModal();
+  renderStats();
+  toast(`Subproyecto "${name}" creado`, '🔀');
+}
+
+function saveDraft() {
+  const pitchEl = document.getElementById('pitchDraft');
+  const specEl = document.getElementById('specDraft');
+  const p = getProject(selectedProjectId);
+  if (pitchEl && pitchEl.value.trim()) p.pitch = pitchEl.value.trim();
+  if (specEl && specEl.value.trim()) p.spec = specEl.value.trim();
+  p.updated = new Date().toISOString().split('T')[0];
+  renderModal();
+  toast('Borrador guardado', '💾');
+}
+
+function changeLeadTech(val) {
+  const p = getProject(selectedProjectId);
+  if (!p) return;
+  p.leadTech = val || null;
+  p.updated = new Date().toISOString().split('T')[0];
+  renderModal(); renderKanban(); renderTable();
+  toast(val ? `Lead Dev: ${val}` : 'Lead Dev removido', '⚙️');
+}
+
+function changeLeadProduct(val) {
+  const p = getProject(selectedProjectId);
+  if (!p) return;
+  p.leadProduct = val || null;
+  p.updated = new Date().toISOString().split('T')[0];
+  renderModal(); renderKanban(); renderTable();
+  toast(val ? `Lead Producto: ${val}` : 'Lead Producto removido', '📋');
+}
+
+function changeDateField(field, val) {
+  const p = getProject(selectedProjectId);
+  if (!p) return;
+  p[field] = val || null;
+  p.updated = new Date().toISOString().split('T')[0];
+  renderModal();
+  toast(field === 'startDate' ? 'Fecha de inicio guardada' : 'Fecha de entrega guardada', '📅');
+}
+
+function addAlcanceItem() {
+  const input = document.getElementById('newAlcanceText');
+  const text = input ? input.value.trim() : '';
+  if (!text) { toast('Escribe el punto de alcance', '⚠️'); return; }
+  const p = getProject(selectedProjectId);
+  p.alcance = p.alcance || [];
+  p.alcance.push({ id: nextAlcanceId++, text, done: false, assignedTo: p.id });
+  p.updated = new Date().toISOString().split('T')[0];
+  if (input) input.value = '';
+  renderModal();
+  toast('Punto de alcance añadido', '✅');
+}
+
+function toggleAlcanceItem(itemId) {
+  const p = getProject(selectedProjectId);
+  const item = (p.alcance||[]).find(a => a.id === itemId);
+  if (item) { item.done = !item.done; p.updated = new Date().toISOString().split('T')[0]; }
+  renderModal();
+}
+
+function assignAlcanceItem(itemId, projId) {
+  const p = getProject(selectedProjectId);
+  const item = (p.alcance||[]).find(a => a.id === itemId);
+  if (item) { item.assignedTo = projId; }
+  renderModal();
+}
+
+function deleteAlcanceItem(itemId) {
+  const p = getProject(selectedProjectId);
+  p.alcance = (p.alcance||[]).filter(a => a.id !== itemId);
+  p.updated = new Date().toISOString().split('T')[0];
+  renderModal();
+  toast('Ítem eliminado', '🗑');
+}
+
+function changeStage(newStage) {
+  const p = getProject(selectedProjectId);
+  if (!p) return;
+  const oldStage = p.stage;
+  p.stage = newStage;
+  p.updated = new Date().toISOString().split('T')[0];
+  renderModal();
+  toast(`Movido a "${STAGES[newStage].label}"`, STAGES[newStage].icon);
+}
+
+function copyForLinear() {
+  const p = getProject(selectedProjectId);
+  if (!p) return;
+  if (!p.pitch && !p.spec) { toast('Este proyecto no tiene pitch ni spec todavía', '⚠️'); return; }
+
+  let text = `# ${p.name}\n\n`;
+  if (p.pitch) text += `## Pitch\n${p.pitch}\n\n`;
+  if (p.spec) text += `## Spec\n${p.spec}\n\n`;
+  text += `---\nExportado desde Product Hub · ${new Date().toLocaleDateString('es-ES')}`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    toast('Copiado al portapapeles — listo para pegar en Linear', '📋');
+  }).catch(() => {
+    toast('No se pudo copiar (requiere HTTPS o permiso)', '⚠️');
+  });
+}
+
+function deleteProject() {
+  if (!confirm('¿Eliminar este proyecto? Esta acción no se puede deshacer.')) return;
+  projects = projects.filter(p => p.id !== selectedProjectId);
+  closeModal();
+  toast('Proyecto eliminado', '🗑');
+}
+
+// ──────────────────────────────────────────────
+// NEW PROJECT MODAL
+// ──────────────────────────────────────────────
+function openNewModal() {
+  document.getElementById('newName').value = '';
+  document.getElementById('newDesc').value = '';
+  document.getElementById('newLead').value = '';
+  document.getElementById('newOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('newName').focus(), 100);
+}
+
+function openNewModalForStage(stage) {
+  openNewModal();
+  document.getElementById('newStage').value = stage;
+}
+
+function closeNewModal() {
+  document.getElementById('newOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function createProject() {
+  const name = document.getElementById('newName').value.trim();
+  const desc = document.getElementById('newDesc').value.trim();
+  const stage = document.getElementById('newStage').value;
+  const lead = document.getElementById('newLead').value.trim() || null;
+  if (!name) { toast('El nombre es obligatorio', '⚠️'); return; }
+
+  const prog = {
+    id: nextId++, name, stage,
+    desc: desc || 'Sin descripción todavía.',
+    leadTech: lead || null, leadProduct: null, phase: null, totalPhases: null, parentId: null,
+    updated: new Date().toISOString().split('T')[0],
+    startDate: null, dueDate: null, alcance: [],
+
+    ideas: [], feedback: [], pitch: null, spec: null
+  };
+  projects.unshift(proj);
+  closeNewModal();
+  renderAll();
+  toast(`Proyecto "${name}" creado en ${STAGES[stage].label}`, STAGES[stage].icon);
+}
+
+// ──────────────────────────────────────────────
+// VIEW SWITCHING
+// ──────────────────────────────────────────────
+function switchView(view) {
+  currentView = view;
+  ['kanban','tabla','feedback','devview'].forEach(v => {
+    document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+    document.getElementById(`tab-${v}`).classList.toggle('active', v === view);
+  });
+  renderAll();
+}
+
+function handleSearch(val) {
+  searchQ = val;
+  renderKanban();
+  renderTable();
+}
+
+function handleOverlayClick(e, overlayId) {
+  if (e.target.id === overlayId) {
+    if (overlayId === 'projectOverlay') closeModal();
+    else closeNewModal();
+  }
+}
+
+function renderDevView() {
+  const devView = document.getElementById('view-devview');
+  if (!devView) return;
+
+  const TECH_ORDER = ['Owen','Bairon','Adrian','Alberto','Sergio','Angel'];
+  const allDevs = [...new Set(projects.map(p => p.leadTech).filter(Boolean))];
+  const sortedDevs = TECH_ORDER.filter(d => allDevs.includes(d));
+  const otherDevs = allDevs.filter(d => !TECH_ORDER.includes(d));
+  const devList = [...sortedDevs, ...otherDevs];
+
+  const devColors = ['#6366f1','#2563eb','#db2777','#059669','#d97706','#7c3aed'];
+
+  let out = '';
+  devList.forEach((dev, idx) => {
+    const devProjects = projects.filter(p => p.leadTech === dev);
+    const color = devColors[TECH_ORDER.indexOf(dev) % devColors.length] || '#6366f1';
+    out += `<div class="dev-section">
+      <div class="dev-section-h">
+        <div class="dev-avatar-lg" style="background:${color}">${initials(dev)}</div>
+        <div>
+          <div class="dev-name">${escH(dev)}</div>
+          <div style="font-size:12px;color:var(--muted)">${devProjects.length} proyecto${devProjects.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+      ${devProjects.map(p => {
+        const st = STAGES[p.stage];
+        const parent = p.parentId ? getProject(p.parentId) : null;
+        const alcanceTotal = (p.alcance||[]).length;
+        const alcanceDone = (p.alcance||[]).filter(a=>a.done).length;
+        const lp = p.leadProduct ? `<span class="badge" style="background:#f0fdf4;color:#166534;font-size:11px">📋 ${escH(p.leadProduct.split(' ')[0])}</span>` : '';
+        const ds = getDateStatus(p);
+        const dueTag = ds ? `<span class="badge" style="background:${ds.bg};color:${ds.color};border:1px solid ${ds.border};font-size:11px">${ds.label}</span>` : '';
+        return `<div class="dev-proj-row" onclick="openProject(${p.id})">
+          ${parent ? `<span style="font-size:11px;color:var(--primary);font-weight:600;white-space:nowrap">↳</span>` : ''}
+          <span class="dev-proj-name">${escH(p.name)}</span>
+          <span class="stage-pill ${p.stage}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.label.replace(/^.+\s/,'')}</span>
+          ${lp}
+          ${alcanceTotal > 0 ? `<span class="badge badge-gray" style="font-size:11px">${alcanceDone}/${alcanceTotal} ✓</span>` : ''}
+          ${dueTag}
+          <span style="font-size:12px;color:var(--primary)">→</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+
+  const unassigned = projects.filter(p => !p.leadTech);
+  if (unassigned.length > 0) {
+    out += `<div class="dev-section">
+      <div class="dev-section-h">
+        <div class="dev-avatar-lg" style="background:#94a3b8;font-size:18px">?</div>
+        <div>
+          <div class="dev-name" style="color:var(--muted)">Sin Lead Dev</div>
+          <div style="font-size:12px;color:var(--muted)">${unassigned.length} proyecto${unassigned.length !== 1 ? 's' : ''} sin asignar</div>
+        </div>
+      </div>
+      ${unassigned.map(p => {
+        const st = STAGES[p.stage];
+        return `<div class="dev-proj-row" onclick="openProject(${p.id})">
+          <span class="dev-proj-name">${escH(p.name)}</span>
+          <span class="stage-pill ${p.stage}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.label.replace(/^.+\s/,'')}</span>
+          <span style="font-size:12px;color:var(--primary)">→</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if (!out) out = `<div style="text-align:center;padding:48px 24px;color:var(--muted);font-size:14px">No hay proyectos con Lead Dev asignado todavía.<br>Asigna un Lead Dev desde la vista de cualquier proyecto.</div>`;
+
+  devView.innerHTML = out;
+}
+
+// ──────────────────────────────────────────────
+// PERSISTENCE (localStorage)
+// ──────────────────────────────────────────────
+function saveState() {
+  try {
+    localStorage.setItem('product-hub-v1', JSON.stringify({
+      projects, feedbackItems, nextId, nextFbId, nextAlcanceId
+    }));
+    const dot = document.getElementById('saveDot');
+    if (dot) { dot.classList.add('show'); clearTimeout(dot._t); dot._t = setTimeout(()=>dot.classList.remove('show'), 1200); }
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('product-hub-v1');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    // Merge: restore saved projects, but also add any NEW hardcoded projects
+    // that weren't in storage yet (e.g. ones I add via file update)
+    const savedIds = new Set((data.projects || []).map(p => p.id));
+    const newSeeds = projects.filter(p => !savedIds.has(p.id));
+    projects = [...(data.projects || []), ...newSeeds];
+    feedbackItems = data.feedbackItems || feedbackItems;
+    nextId = Math.max(nextId, (data.nextId || 0));
+    nextFbId = Math.max(nextFbId, (data.nextFbId || 0));
+    nextAlcanceId = Math.max(nextAlcanceId, (data.nextAlcanceId || 0));
+  } catch(e) {
+    console.warn('Product Hub: no se pudo cargar estado guardado', e);
+  }
+}
+
+function exportData() {
+  const json = JSON.stringify({ projects, feedbackItems, nextId, nextFbId, nextAlcanceId }, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `product-hub-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  toast('Datos exportados como JSON', '💾');
+}
+
+function resetData() {
+  if (!confirm('¿Resetear todos los datos? Se borrarán todos los cambios guardados y se volverá a los datos originales del archivo. Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem('product-hub-v1');
+  location.reload();
+}
+
+// ──────────────────────────────────────────────
+// RENDER ALL
+// ──────────────────────────────────────────────
+function renderAll() {
+  saveState();
+  renderStats();
+  renderKanban();
+  renderTable();
+  renderFeedbackSelect();
+  renderFeedbackList();
+  renderDevView();
+}
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+loadState();
+renderAll();
+</script>
+</body>
+</html>

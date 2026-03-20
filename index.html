@@ -35,7 +35,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 .btn-sm{padding:5px 12px;font-size:13px}
 
 /* NAV TABS */
-nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:2px}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:2py}
 .nav-tab{padding:11px 16px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit;display:flex;align-items:center;gap:6px}
 .nav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 .nav-tab:hover:not(.active){color:var(--text)}
@@ -224,6 +224,9 @@ input[type=text]:focus{border-color:var(--primary)}
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -393,6 +396,21 @@ input[type=text]:focus{border-color:var(--primary)}
 
 <script>
 // ──────────────────────────────────────────────
+// FIREBASE INIT
+// ──────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDUTNLDknRDee7z8CS4ZR-nt3Xsos14OPc",
+  authDomain: "product-hub-be8a0.firebaseapp.com",
+  projectId: "product-hub-be8a0",
+  storageBucket: "product-hub-be8a0.firebasestorage.app",
+  messagingSenderId: "1078280510851",
+  appId: "1:1078280510851:web:2ca82ab8888c0e05f12ab6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const stateDoc = db.collection('hub').doc('state');
+
+// ─────────────────────────────────────────────
 // DATA
 // ──────────────────────────────────────────────
 const STAGES = {
@@ -423,7 +441,7 @@ Mawi actualmente cuenta con tres módulos independientes relacionados a material
 
 Consecuencias del problema actual:
 • No existe visibilidad del estado de un material específico dentro de una solicitud.
-• No hay trazabilidad entre solicitud, compra, recepción an bodega y salida a obra.
+• No hay trazabilidad entre solicitud, compra, recepción en bodega y salida a obra.
 • Los estados de solicitud son globales y se cambian manualmente, sin reflejo automático.
 • No contamos con funcionalidades de entradas y salidas de bodega para control de inventario.
 
@@ -456,7 +474,7 @@ Después: Módulo directo "Control de Materiales" (se elimina la jerarquía en e
 
 A.2 Tabs (en este orden)
 1. Inventario  2. Solicitudes  3. Entradas  4. Salidas
-El sistema recuerda el último tab visitado por usuario y proyecto.
+El sistema recuerda el último tab visitado pos usuario y proyecto.
 
 ---
 
@@ -682,7 +700,8 @@ Disponible para cada OC-cambio aprobada. Contenido: datos OC padre, código OC-c
   }
   ,{
     id: 4, name: 'UX Solicitudes de Materiales', stage: 'pitchdev',
-    desc: 'Actualización UX de la vista de pedidos: migración a tabla, acciones masivas, crear pedido manual y carga por PDF.',
+    desc: 'Actualización UX de la vista de pedidos:
+migración a tabla, acciones masivas, crear pedido manual y carga por PDF.',
     leadTech: null, leadProduct: null, phase: null, totalPhases: null, parentId: 1, updated: '2026-03-20',
     startDate: null, dueDate: null, alcance: [],
 
@@ -718,7 +737,7 @@ Mantener lógica actual.
 
 ## 3. Funcionalidades por solicitud
 Editar, Duplicar, Crear cotización (existente), Crear orden de compra (existente).
-- Seleccionar materiales de diferentes solicitudes para crear una OC/cotización.
+- Seleccionar materiales de diferentes solicitudes para crear una OC/cotizacjón.
 - Back-end: al crear cotización/OC desde solicitud, guardar la asociación de la solicitud a cada línea.
 
 Editar:
@@ -838,7 +857,7 @@ function getDateStatus(p) {
   // Returns { label, color, bg, border } or null
   const today = new Date(); today.setHours(0,0,0,0);
   const due = p.dueDate ? new Date(p.dueDate + 'T00:00:00') : null;
- #const started = p.startDate ? new Date(p.startDate + 'T00:00:00') : null;
+  const started = p.startDate ? new Date(p.startDate + 'T00:00:00') : null;
   const isProd = p.stage === 'produccion';
   const inDev = p.stage === 'desarrollo';
 
@@ -1493,7 +1512,7 @@ function createProject() {
   const lead = document.getElementById('newLead').value.trim() || null;
   if (!name) { toast('El nombre es obligatorio', '⚠️'); return; }
 
-  const prog = {
+  const proj = {
     id: nextId++, name, stage,
     desc: desc || 'Sin descripción todavía.',
     leadTech: lead || null, leadProduct: null, phase: null, totalPhases: null, parentId: null,
@@ -1605,35 +1624,40 @@ function renderDevView() {
 }
 
 // ──────────────────────────────────────────────
-// PERSISTENCE (localStorage)
+// PERSISTENCE (Firebase Firestore)
 // ──────────────────────────────────────────────
+let _saveTimer = null;
+let _isLoading = false;
+
 function saveState() {
-  try {
-    localStorage.setItem('product-hub-v1', JSON.stringify({
-      projects, feedbackItems, nextId, nextFbId, nextAlcanceId
-    }));
-    const dot = document.getElementById('saveDot');
-    if (dot) { dot.classList.add('show'); clearTimeout(dot._t); dot._t = setTimeout(()=>dot.classList.remove('show'), 1200); }
-  } catch(e) {}
+  if (_isLoading) return;
+  const dot = document.getElementById('saveDot');
+  if (dot) { dot.classList.add('show'); clearTimeout(dot._t); dot._t = setTimeout(()=>dot.classList.remove('show'), 1200); }
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => {
+    stateDoc.set({ projects, feedbackItems, nextId, nextFbId, nextAlcanceId })
+      .catch(e => console.warn('Error guardando en Firebase:', e));
+  }, 600);
 }
 
 function loadState() {
-  try {
-    const raw = localStorage.getItem('product-hub-v1');
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    // Merge: restore saved projects, but also add any NEW hardcoded projects
-    // that weren't in storage yet (e.g. ones I add via file update)
-    const savedIds = new Set((data.projects || []).map(p => p.id));
-    const newSeeds = projects.filter(p => !savedIds.has(p.id));
-    projects = [...(data.projects || []), ...newSeeds];
-    feedbackItems = data.feedbackItems || feedbackItems;
-    nextId = Math.max(nextId, (data.nextId || 0));
-    nextFbId = Math.max(nextFbId, (data.nextFbId || 0));
-    nextAlcanceId = Math.max(nextAlcanceId, (data.nextAlcanceId || 0));
-  } catch(e) {
-    console.warn('Product Hub: no se pudo cargar estado guardado', e);
-  }
+  _isLoading = true;
+  return stateDoc.get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      const savedIds = new Set((data.projects || []).map(p => p.id));
+      const newSeeds = projects.filter(p => !savedIds.has(p.id));
+      projects = [...(data.projects || []), ...newSeeds];
+      feedbackItems = data.feedbackItems || feedbackItems;
+      nextId = Math.max(nextId, (data.nextId || 0));
+      nextFbId = Math.max(nextFbId, (data.nextFbId || 0));
+      nextAlcanceId = Math.max(nextAlcanceId, (data.nextAlcanceId || 0));
+    }
+    _isLoading = false;
+  }).catch(e => {
+    console.warn('Error cargando desde Firebase:', e);
+    _isLoading = false;
+  });
 }
 
 function exportData() {
@@ -1648,8 +1672,7 @@ function exportData() {
 
 function resetData() {
   if (!confirm('¿Resetear todos los datos? Se borrarán todos los cambios guardados y se volverá a los datos originales del archivo. Esta acción no se puede deshacer.')) return;
-  localStorage.removeItem('product-hub-v1');
-  location.reload();
+  stateDoc.delete().then(() => location.reload()).catch(() => location.reload());
 }
 
 // ──────────────────────────────────────────────
@@ -1668,8 +1691,7 @@ function renderAll() {
 // ──────────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────────
-loadState();
-renderAll();
+loadState().then(() => renderAll());
 </script>
 </body>
 </html>

@@ -5,6 +5,7 @@
   --c-pitchdev:#db2777;--c-pitchdev-bg:#fdf2f8;--c-pitchdev-border:#fbcfe8;
   --c-pitch:#7c3aed;--c-pitch-bg:#f5f3ff;--c-pitch-border:#ddd6fe;
   --c-desarrollo:#2563eb;--c-desarrollo-bg:#eff6ff;--c-desarrollo-border:#bfdbfe;
+  --c-qa:#0891b2;--c-qa-bg:#ecfeff;--c-qa-border:#a5f3fc;
   --c-produccion:#059669;--c-produccion-bg:#ecfdf5;--c-produccion-border:#6ee7b7;
   --bg:#f1f5f9;--white:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
   --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
@@ -39,15 +40,15 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 .main-content{padding:24px}
 
 /* ── STATS ROW (KanbanView uses .stats-row) ──────────────────────────────── */
-.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
 .stat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-top:3px solid transparent}
-.stat.ideacion{border-top-color:var(--c-ideacion)}.stat.pitchdev{border-top-color:var(--c-pitchdev)}.stat.pitch{border-top-color:var(--c-pitch)}.stat.desarrollo{border-top-color:var(--c-desarrollo)}.stat.produccion{border-top-color:var(--c-produccion)}
+.stat.ideacion{border-top-color:var(--c-ideacion)}.stat.pitchdev{border-top-color:var(--c-pitchdev)}.stat.pitch{border-top-color:var(--c-pitch)}.stat.desarrollo{border-top-color:var(--c-desarrollo)}.stat.qa{border-top-color:var(--c-qa)}.stat.produccion{border-top-color:var(--c-produccion)}
 .stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.stat.ideacion .stat-label{color:var(--c-ideacion)}.stat.pitchdev .stat-label{color:var(--c-pitchdev)}.stat.pitch .stat-label{color:var(--c-pitch)}.stat.desarrollo .stat-label{color:var(--c-desarrollo)}.stat.produccion .stat-label{color:var(--c-produccion)}
+.stat.ideacion .stat-label{color:var(--c-ideacion)}.stat.pitchdev .stat-label{color:var(--c-pitchdev)}.stat.pitch .stat-label{color:var(--c-pitch)}.stat.desarrollo .stat-label{color:var(--c-desarrollo)}.stat.qa .stat-label{color:var(--c-qa)}.stat.produccion .stat-label{color:var(--c-produccion)}
 .stat-num{font-size:28px;font-weight:800;line-height:1}.stat-sub{font-size:12px;color:var(--muted);margin-top:3px}
 
 /* ── KANBAN BOARD (KanbanView uses .kanban-board / .kanban-col / etc.) ────── */
-.kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;align-items:start}
+.kanban-board{display:grid;grid-template-columns:repeat(6,minmax(160px,1fr));gap:16px;align-items:start}
 .kanban-col{display:flex;flex-direction:column;gap:8px}
 .kanban-cards{display:flex;flex-direction:column;gap:8px}
 .kanban-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
@@ -55,6 +56,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 .kanban-header.pitchdev{background:var(--c-pitchdev-bg);color:var(--c-pitchdev);border:1px solid var(--c-pitchdev-border)}
 .kanban-header.pitch{background:var(--c-pitch-bg);color:var(--c-pitch);border:1px solid var(--c-pitch-border)}
 .kanban-header.desarrollo{background:var(--c-desarrollo-bg);color:var(--c-desarrollo);border:1px solid var(--c-desarrollo-border)}
+.kanban-header.qa{background:var(--c-qa-bg);color:var(--c-qa);border:1px solid var(--c-qa-border)}
 .kanban-header.produccion{background:var(--c-produccion-bg);color:var(--c-produccion);border:1px solid var(--c-produccion-border)}
 .kanban-count{padding:1px 8px;border-radius:999px;font-size:11px;background:rgba(0,0,0,.08)}
 .kanban-add{width:100%;padding:8px;border:1px dashed var(--border);border-radius:8px;background:none;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;font-family:inherit;transition:all .15s}
@@ -63,7 +65,8 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 /* ── PROJECT CARD ─────────────────────────────────────────────────────────── */
 .project-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
 .project-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
-.project-card.ideacion{border-left-color:var(--c-ideacion)}.project-card.pitchdev{border-left-color:var(--c-pitchdev)}.project-card.pitch{border-left-color:var(--c-pitch)}.project-card.desarrollo{border-left-color:var(--c-desarrollo)}.project-card.produccion{border-left-color:var(--c-produccion)}
+.project-card.ideacion{border-left-color:var(--c-ideacion)}.project-card.pitchdev{border-left-color:var(--c-pitchdev)}.project-card.pitch{border-left-color:var(--c-pitch)}.project-card.desarrollo{border-left-color:var(--c-desarrollo)}.project-card.qa{border-left-color:var(--c-qa)}.project-card.produccion{border-left-color:var(--c-produccion)}
+.project-card.sub-card{margin-left:8px;border-left-width:2px;opacity:.95}
 .card-name{font-weight:700;font-size:14px;margin-bottom:5px;line-height:1.3}
 .card-desc{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px}
 .card-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
@@ -82,6 +85,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 .stage-pill.pitchdev{background:var(--c-pitchdev-bg);color:var(--c-pitchdev);border:1px solid var(--c-pitchdev-border)}
 .stage-pill.pitch{background:var(--c-pitch-bg);color:var(--c-pitch);border:1px solid var(--c-pitch-border)}
 .stage-pill.desarrollo{background:var(--c-desarrollo-bg);color:var(--c-desarrollo);border:1px solid var(--c-desarrollo-border)}
+.stage-pill.qa{background:var(--c-qa-bg);color:var(--c-qa);border:1px solid var(--c-qa-border)}
 .stage-pill.produccion{background:var(--c-produccion-bg);color:var(--c-produccion);border:1px solid var(--c-produccion-border)}
 
 /* ── TABLE VIEW (TableView uses .ctrl-table / .ctrl-row) ─────────────────── */
@@ -110,7 +114,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 
 /* ── MODAL ────────────────────────────────────────────────────────────────── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:var(--white);border-radius:16px;width:100%;max-width:780px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 48px rgba(0,0,0,.18)}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:936px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 48px rgba(0,0,0,.18)}
 .modal-header{padding:22px 24px 0;display:flex;align-items:flex-start;gap:12px}
 .modal-title-area{flex:1}
 .modal-name{font-size:20px;font-weight:800;line-height:1.2;margin-bottom:6px}
@@ -137,6 +141,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 .stage-btn.pitchdev{background:var(--c-pitchdev-bg);color:var(--c-pitchdev);border-color:var(--c-pitchdev-border)}.stage-btn.pitchdev.active{background:var(--c-pitchdev);color:white}
 .stage-btn.pitch{background:var(--c-pitch-bg);color:var(--c-pitch);border-color:var(--c-pitch-border)}.stage-btn.pitch.active{background:var(--c-pitch);color:white}
 .stage-btn.desarrollo{background:var(--c-desarrollo-bg);color:var(--c-desarrollo);border-color:var(--c-desarrollo-border)}.stage-btn.desarrollo.active{background:var(--c-desarrollo);color:white}
+.stage-btn.qa{background:var(--c-qa-bg);color:var(--c-qa);border-color:var(--c-qa-border)}.stage-btn.qa.active{background:var(--c-qa);color:white}
 .stage-btn.produccion{background:var(--c-produccion-bg);color:var(--c-produccion);border-color:var(--c-produccion-border)}.stage-btn.produccion.active{background:var(--c-produccion);color:white}
 
 /* ── FORM ELEMENTS ────────────────────────────────────────────────────────── */

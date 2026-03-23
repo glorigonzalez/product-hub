@@ -417,10 +417,10 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
   const tabs = [
     { key: 'contexto',     label: 'Contexto' },
     { key: 'brainstorm',   label: 'Brainstorm' },
-    { key: 'feedback',     label: 'Feedback' },
+    { key: 'alcance',      label: alcanceCount > 0 ? `Alcance (${alcanceDone}/${alcanceCount})` : 'Alcance' },
     { key: 'pitch',        label: 'Pitch & Spec' },
     { key: 'subproyectos', label: subs.length > 0 ? `Subproyectos (${subs.length})` : 'Subproyectos' },
-    { key: 'alcance',      label: alcanceCount > 0 ? `Alcance (${alcanceDone}/${alcanceCount})` : 'Alcance' },
+    { key: 'feedback',     label: 'Feedback' },
   ];
 
   return (

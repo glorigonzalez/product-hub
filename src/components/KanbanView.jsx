@@ -18,7 +18,7 @@ function ProjectCard({ p, projects, onOpen }) {
   const parentProj = p.parentId ? projects.find(pp => pp.id === p.parentId) : null;
 
   return (
-    <div className={`project-card ${p.stage}`} onClick={() => onOpen(p.id)}>
+    <div className={`project-card ${p.stage}${p.parentId ? ' sub-card' : ''}`} onClick={() => onOpen(p.id)}>
       {parentProj && (
         <div style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 600, marginBottom: 4 }}>
           ↳ {parentProj.name}
@@ -52,15 +52,15 @@ function ProjectCard({ p, projects, onOpen }) {
 }
 
 export default function KanbanView({ projects, onOpen, onNewInStage }) {
-  const roots = projects.filter(p => !p.parentId);
   const counts = {};
-  STAGE_ORDER.forEach(k => { counts[k] = roots.filter(p => p.stage === k).length; });
+  STAGE_ORDER.forEach(k => { counts[k] = projects.filter(p => p.stage === k).length; });
 
   const LABELS = {
     ideacion:   'Ideación',
     pitchdev:   'Pitch en Dev',
     pitch:      'Pitch Listo',
     desarrollo: 'En Desarrollo',
+    qa:         'QA',
     produccion: 'En Producción',
   };
   const SUBS = {
@@ -68,6 +68,7 @@ export default function KanbanView({ projects, onOpen, onNewInStage }) {
     pitchdev:   'Estructurando pitch',
     pitch:      'Esperando desarrollo',
     desarrollo: 'Con equipo dev',
+    qa:         'En revisión 🧪',
     produccion: 'Live 🟢',
   };
 
@@ -87,7 +88,7 @@ export default function KanbanView({ projects, onOpen, onNewInStage }) {
       {/* Board */}
       <div className="kanban-board">
         {STAGE_ORDER.map(k => {
-          const col = roots.filter(p => p.stage === k);
+          const col = projects.filter(p => p.stage === k);
           return (
             <div key={k} className="kanban-col">
               <div className={`kanban-header ${k}`}>

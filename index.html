@@ -414,11 +414,11 @@ const stateDoc = db.collection('hub').doc('state');
 // DATA
 // ──────────────────────────────────────────────
 const STAGES = {
-  ideacion:   { label: '💡 Ideación',             cls: 'ideacion',   icon: '💡' },
-  pitchdev:   { label: '✍️ Pitch en Desarrollo',  cls: 'pitchdev',   icon: '✍️' },
-  pitch:      { label: '📄 Pitch Listo',          cls: 'pitch',      icon: '📄' },
-  desarrollo: { label: '⚙️ En Desarrollo',        cls: 'desarrollo', icon: '⚙️' },
-  produccion: { label: '✅ En Producción',        cls: 'produccion', icon: '✅' }
+  ideacion:   { label: '💡 Ideación',             short: 'Ideación',      cls: 'ideacion',   icon: '💡' },
+  pitchdev:   { label: '✍️ Pitch en Desarrollo',  short: 'Pitch en Dev',  cls: 'pitchdev',   icon: '✍️' },
+  pitch:      { label: '📄 Pitch Listo',          short: 'Pitch Listo',   cls: 'pitch',      icon: '📄' },
+  desarrollo: { label: '⚙️ En Desarrollo',        short: 'En Desarrollo', cls: 'desarrollo', icon: '⚙️' },
+  produccion: { label: '✅ En Producción',        short: 'En Producción', cls: 'produccion', icon: '✅' }
 };
 
 let projects = [
@@ -1001,7 +1001,7 @@ function renderTable() {
     const rowStyle = parent ? ' style="background:#fafbff"' : '';
     return `<tr onclick="openProject(${p.id})"${rowStyle}>
       <td>${nameCell}</td>
-      <td><span class="stage-pill ${p.stage}">${st.icon} ${st.label.replace(/^.+\s/,'')}</span></td>
+      <td><span class="stage-pill ${p.stage}">${st.icon} ${st.short}</span></td>
       <td>${leadCell}</td>
       <td style="color:var(--muted);font-size:13px">${phaseCell}</td>
       <td>${subsCell}</td>
@@ -1108,7 +1108,7 @@ function renderModal() {
   // Meta
   const techOpts = ['Owen','Bairon','Adrian','Alberto','Sergio','Angel'].map(n => `<option value="${n}"${p.leadTech===n?' selected':''}>${n}</option>`).join('');
   const prodOpts = ['Gloriana','Sergio'].map(n => `<option value="${n}"${p.leadProduct===n?' selected':''}>${n}</option>`).join('');
-  let meta = `<span class="stage-pill ${p.stage}">${st.icon} ${st.label.replace(/^.+\s/,'')}</span>`;
+  let meta = `<span class="stage-pill ${p.stage}">${st.icon} ${st.short}</span>`;
   meta += `<select class="lead-sel tech${p.leadTech?'':' empty'}" onchange="changeLeadTech(this.value)" title="Lead Técnico"><option value="">⚙️ Lead Dev</option>${techOpts}</select>`;
   meta += `<select class="lead-sel product${p.leadProduct?'':' empty'}" onchange="changeLeadProduct(this.value)" title="Lead Producto"><option value="">📋 Lead Producto</option>${prodOpts}</select>`;
   if (p.phase && p.totalPhases) meta += `<span class="badge badge-gray">Fase ${p.phase}/${p.totalPhases}</span>`;
@@ -1138,7 +1138,7 @@ function renderModal() {
 
   // Stage buttons
   document.getElementById('stageBtns').innerHTML = Object.entries(STAGES).filter(([k]) => k !== p.stage).map(([k,v]) =>
-    `<button class="stage-btn ${k}" onclick="changeStage('${k}')">${v.icon} ${v.label.replace(/^.+\s/,'')}</button>`
+    `<button class="stage-btn ${k}" onclick="changeStage('${k}')">${v.icon} ${v.short}</button>`
   ).join('');
 }
 
@@ -1162,7 +1162,7 @@ function renderModalTab(p) {
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--primary-bg);border:1px solid #c7d2fe;border-radius:8px;cursor:pointer;margin-bottom:4px" onclick="closeModal();setTimeout(()=>openProject(${parentProj.id}),50)">
         <div>
           <div style="font-weight:700;font-size:14px">${escH(parentProj.name)}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px"><span class="stage-pill ${parentProj.stage}" style="font-size:11px;padding:1px 7px">${STAGES[parentProj.stage].icon} ${STAGES[parentProj.stage].label.replace(/^.+\s/,'')}</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px"><span class="stage-pill ${parentProj.stage}" style="font-size:11px;padding:1px 7px">${STAGES[parentProj.stage].icon} ${STAGES[parentProj.stage].short}</span></div>
         </div>
         <span style="color:var(--primary);font-size:14px">→</span>
       </div>` : '';
@@ -1219,7 +1219,7 @@ function renderModalTab(p) {
       const inStage = subs.filter(s => s.stage === stKey);
       if (inStage.length === 0) return;
       const st = STAGES[stKey];
-      grouped += `<div class="sub-group-h"><span class="stage-pill ${stKey}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.label.replace(/^.+\s/,'')}</span><span style="font-weight:400">${inStage.length}</span></div>`;
+      grouped += `<div class="sub-group-h"><span class="stage-pill ${stKey}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.short}</span><span style="font-weight:400">${inStage.length}</span></div>`;
       inStage.forEach(s => {
         grouped += `<div class="sub-mini-row" onclick="openProject(${s.id})">
           <div class="sub-mini-name">${escH(s.name)}</div>
@@ -1253,7 +1253,7 @@ function renderModalTab(p) {
       <div class="sub-add-row">
         <input type="text" id="newSubName" placeholder="Nombre del subproyecto..." onkeydown="if(event.key==='Enter')addSubproject()" style="flex:1">
         <select id="newSubStage" style="width:160px">
-          ${stageOrder.map(k => `<option value="${k}">${STAGES[k].icon} ${STAGES[k].label.replace(/^.+\s/,'')}</option>`).join('')}
+          ${stageOrder.map(k => `<option value="${k}">${STAGES[k].icon} ${STAGES[k].short}</option>`).join('')}
         </select>
         <button class="btn btn-primary btn-sm" onclick="addSubproject()">+ Subproyecto</button>
       </div>`;
@@ -1586,7 +1586,7 @@ function renderDevView() {
         return `<div class="dev-proj-row" onclick="openProject(${p.id})">
           ${parent ? `<span style="font-size:11px;color:var(--primary);font-weight:600;white-space:nowrap">↳</span>` : ''}
           <span class="dev-proj-name">${escH(p.name)}</span>
-          <span class="stage-pill ${p.stage}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.label.replace(/^.+\s/,'')}</span>
+          <span class="stage-pill ${p.stage}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.short}</span>
           ${lp}
           ${alcanceTotal > 0 ? `<span class="badge badge-gray" style="font-size:11px">${alcanceDone}/${alcanceTotal} ✓</span>` : ''}
           ${dueTag}
@@ -1610,7 +1610,7 @@ function renderDevView() {
         const st = STAGES[p.stage];
         return `<div class="dev-proj-row" onclick="openProject(${p.id})">
           <span class="dev-proj-name">${escH(p.name)}</span>
-          <span class="stage-pill ${p.stage}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.label.replace(/^.+\s/,'')}</span>
+          <span class="stage-pill ${p.stage}" style="font-size:11px;padding:2px 8px">${st.icon} ${st.short}</span>
           <span style="font-size:12px;color:var(--primary)">→</span>
         </div>`;
       }).join('')}

@@ -237,6 +237,17 @@ input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;
 /* ── COMM ITEMS ───────────────────────────────────────────────────────────── */
 .comm-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;transition:background .1s}
 .comm-item.comm-done{background:#f0fdf4;border-color:#bbf7d0}
+/* Rich comm item — vertical layout */
+.comm-item-rich{display:block;padding:10px 12px}
+.comm-item-rich.comm-done{background:#f0fdf4;border-color:#bbf7d0}
+.comm-item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.comm-item-body{margin-top:7px}
+.comm-channel-name{flex:1;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;min-width:0}
+.comm-rich-display{font-size:13px;line-height:1.6;color:var(--text);cursor:pointer;padding:5px 8px;border-radius:6px;border:1px dashed transparent;transition:border-color .15s}
+.comm-rich-display:hover{border-color:var(--primary);background:var(--primary-bg)}
+.comm-rich-display ul,.comm-rich-display ol{padding-left:18px}
+.comm-rich-display li{margin:2px 0}
+.comm-rich-empty{opacity:.6}
 .comm-icon{font-size:15px;flex-shrink:0;width:22px;text-align:center}
 .comm-label{flex:1;font-size:13px;font-weight:500;min-width:0;word-break:break-word}
 .comm-timing{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:700;white-space:nowrap;border:1px solid;flex-shrink:0}
@@ -249,8 +260,22 @@ input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;
 /* ── ADD COMM BUTTON / ROW ────────────────────────────────────────────────── */
 .comm-add-btn{width:100%;padding:8px;border:1px dashed var(--border);border-radius:8px;background:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:4px;text-align:center}
 .comm-add-btn:hover{border-color:#7e22ce;color:#7e22ce;background:#fdf4ff}
-.comm-add-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center}
-.comm-add-row input[type=text]{flex:1;min-width:160px}
+.comm-add-col{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.comm-add-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ── RICH TEXT EDITOR ────────────────────────────────────────────────────── */
+.rich-wrap{display:flex;flex-direction:column;width:100%}
+.rich-toolbar{display:none;gap:2px;padding:4px 8px;background:#1e293b;border-radius:7px 7px 0 0;align-items:center}
+.rich-toolbar-visible{display:flex}
+.rt-btn{background:transparent;border:none;color:#e2e8f0;font-size:13px;font-weight:700;cursor:pointer;padding:2px 8px;border-radius:4px;font-family:inherit;line-height:1.4}
+.rt-btn:hover{background:rgba(255,255,255,.15)}
+.rt-italic{font-style:italic}
+.rt-sep{width:1px;height:16px;background:rgba(255,255,255,.2);margin:0 3px;flex-shrink:0}
+.rich-editor{min-height:36px;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);outline:none;line-height:1.6;word-break:break-word;transition:border-color .15s}
+.rich-editor-focused{border-radius:0 0 7px 7px;border-color:var(--primary);border-top-color:transparent}
+.rich-editor:empty::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none}
+.rich-editor ul,.rich-editor ol{padding-left:18px;margin:4px 0}
+.rich-editor li{margin:2px 0}
 
 /* ── LAUNCH VIEW (dedicated) ──────────────────────────────────────────────── */
 .launch-section{margin-bottom:28px}

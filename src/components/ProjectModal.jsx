@@ -1,4 +1,60 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+
+// ── Rich text editor ────────────────────────────────────────────────────────────
+function RichEditor({ initialHtml = '', onChange, onDone, placeholder = '', autoFocus = false }) {
+  const ref = useRef(null);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.innerHTML = initialHtml;
+      if (autoFocus) {
+        ref.current.focus();
+        // Place cursor at end
+        const range = document.createRange();
+        const sel   = window.getSelection();
+        range.selectNodeContents(ref.current);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+  }, []); // intentionally run once on mount only
+
+  const exec = (cmd) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false, null);
+  };
+
+  const handleBlur = () => {
+    setFocused(false);
+    const html = ref.current?.innerHTML || '';
+    onChange(html);
+    onDone?.();
+  };
+
+  return (
+    <div className="rich-wrap">
+      <div className={`rich-toolbar${focused ? ' rich-toolbar-visible' : ''}`}>
+        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('bold'); }} title="Negrita"><b>B</b></button>
+        <button type="button" className="rt-btn rt-italic" onMouseDown={e => { e.preventDefault(); exec('italic'); }} title="Cursiva"><i>I</i></button>
+        <span className="rt-sep" />
+        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('insertUnorderedList'); }} title="Lista">• —</button>
+        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('insertOrderedList'); }} title="Numeración">1.</button>
+      </div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        className={`rich-editor${focused ? ' rich-editor-focused' : ''}`}
+        data-placeholder={placeholder}
+        onFocus={() => setFocused(true)}
+        onBlur={handleBlur}
+        onInput={() => onChange(ref.current?.innerHTML || '')}
+      />
+    </div>
+  );
+}
 import { STAGES, STAGE_ORDER, TECH_LEADS, PROD_LEADS } from '../config/stages';
 
 function fmt(dateStr) {
@@ -504,41 +560,67 @@ const TIMING_OPTIONS = [
 const SCHED_LABELS = { before: 'Antes', at: 'Al lanzar', after: 'Después' };
 
 function CommRow({ comm, projectId, actions, showToast }) {
+  const [editing, setEditing] = useState(false);
   const ch = CHANNELS[comm.channel] || { icon: '📌', label: comm.channel };
-  const statusCls = { pending: 'cs-pending', draft: 'cs-draft', ready: 'cs-ready', sent: 'cs-sent' }[comm.status] || 'cs-pending';
-  const statusLabels = { pending: 'Pendiente', draft: 'Borrador', ready: 'Listo ✓', sent: 'Enviado ✓' };
   const schedCls = { before: 'ct-before', at: 'ct-at', after: 'ct-after' }[comm.scheduledFor] || 'ct-at';
 
   return (
-    <div className={`comm-item${comm.status === 'ready' || comm.status === 'sent' ? ' comm-done' : ''}`}>
-      <span className="comm-icon">{ch.icon}</span>
-      <span className="comm-label">{comm.label || ch.label}</span>
-      <span className={`comm-timing ${schedCls}`}>{SCHED_LABELS[comm.scheduledFor] || '—'}</span>
-      <select
-        className="comm-status-sel"
-        value={comm.status}
-        onChange={e => actions.updateLaunchComm(projectId, comm.id, { status: e.target.value })}
-      >
-        <option value="pending">Pendiente</option>
-        <option value="draft">Borrador</option>
-        <option value="ready">Listo ✓</option>
-        <option value="sent">Enviado ✓</option>
-      </select>
-      <button className="comm-del" onClick={() => actions.deleteLaunchComm(projectId, comm.id)} title="Eliminar">✕</button>
+    <div className={`comm-item comm-item-rich${comm.status === 'ready' || comm.status === 'sent' ? ' comm-done' : ''}`}>
+      {/* Top row: icon + timing + status + delete */}
+      <div className="comm-item-top">
+        <span className="comm-icon">{ch.icon}</span>
+        <span className="comm-channel-name">{ch.label}</span>
+        <span className={`comm-timing ${schedCls}`}>{SCHED_LABELS[comm.scheduledFor] || '—'}</span>
+        <select
+          className="comm-status-sel"
+          value={comm.status}
+          onChange={e => actions.updateLaunchComm(projectId, comm.id, { status: e.target.value })}
+        >
+          <option value="pending">Pendiente</option>
+          <option value="draft">Borrador</option>
+          <option value="ready">Listo ✓</option>
+          <option value="sent">Enviado ✓</option>
+        </select>
+        <button className="comm-del" onClick={() => actions.deleteLaunchComm(projectId, comm.id)} title="Eliminar">✕</button>
+      </div>
+      {/* Body: rich description */}
+      <div className="comm-item-body">
+        {editing ? (
+          <RichEditor
+            initialHtml={comm.label || ''}
+            onChange={html => actions.updateLaunchComm(projectId, comm.id, { label: html })}
+            onDone={() => setEditing(false)}
+            placeholder="Descripción de la comunicación..."
+            autoFocus
+          />
+        ) : (
+          <div
+            className={`comm-rich-display${!comm.label ? ' comm-rich-empty' : ''}`}
+            dangerouslySetInnerHTML={{ __html: comm.label || `<em style="color:var(--muted)">Sin descripción — clic para editar</em>` }}
+            onClick={() => setEditing(true)}
+            title="Clic para editar"
+          />
+        )}
+      </div>
     </div>
   );
 }
 
 function AddCommRow({ projectId, audience, actions, showToast }) {
-  const [open, setOpen]    = useState(false);
-  const [ch,   setCh]      = useState('slack');
-  const [lbl,  setLbl]     = useState('');
-  const [sched,setSched]   = useState('at');
+  const [open,      setOpen]      = useState(false);
+  const [ch,        setCh]        = useState('email');
+  const [lbl,       setLbl]       = useState('');
+  const [sched,     setSched]     = useState('at');
+  const [editorKey, setEditorKey] = useState(0); // force remount on clear
 
   const handleAdd = () => {
-    const label = lbl.trim() || CHANNELS[ch]?.label || ch;
+    const label = lbl || CHANNELS[ch]?.label || ch;
     actions.addLaunchComm(projectId, { audience, channel: ch, label, scheduledFor: sched, status: 'pending' });
-    setLbl(''); setCh('slack'); setSched('at'); setOpen(false);
+    setLbl('');
+    setCh('email');
+    setSched('at');
+    setEditorKey(k => k + 1);
+    setOpen(false);
     showToast('Canal añadido', '🚀');
   };
 
@@ -551,27 +633,28 @@ function AddCommRow({ projectId, audience, actions, showToast }) {
   }
 
   return (
-    <div className="comm-add-row">
-      <select value={ch} onChange={e => setCh(e.target.value)} style={{ width: 130 }}>
-        {Object.entries(CHANNELS).map(([k, v]) => (
-          <option key={k} value={k}>{v.icon} {v.label}</option>
-        ))}
-      </select>
-      <input
-        type="text"
-        placeholder={`Descripción (ej: ${CHANNELS[ch]?.label} al equipo...)`}
-        value={lbl}
-        onChange={e => setLbl(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && handleAdd()}
-        style={{ flex: 1 }}
+    <div className="comm-add-col">
+      <div className="comm-add-row">
+        <select value={ch} onChange={e => setCh(e.target.value)} style={{ width: 130 }}>
+          {Object.entries(CHANNELS).map(([k, v]) => (
+            <option key={k} value={k}>{v.icon} {v.label}</option>
+          ))}
+        </select>
+        <select value={sched} onChange={e => setSched(e.target.value)} style={{ width: 110 }}>
+          <option value="before">Antes</option>
+          <option value="at">Al lanzar</option>
+          <option value="after">Después</option>
+        </select>
+        <button className="btn btn-primary btn-sm" onClick={handleAdd}>+ Añadir</button>
+        <button className="btn btn-sm" onClick={() => setOpen(false)}>✕</button>
+      </div>
+      <RichEditor
+        key={editorKey}
+        initialHtml=""
+        onChange={setLbl}
+        placeholder={`Descripción (ej: ${CHANNELS[ch]?.label || 'Canal'} al equipo...)`}
+        autoFocus
       />
-      <select value={sched} onChange={e => setSched(e.target.value)} style={{ width: 110 }}>
-        <option value="before">Antes</option>
-        <option value="at">Al lanzar</option>
-        <option value="after">Después</option>
-      </select>
-      <button className="btn btn-primary btn-sm" onClick={handleAdd}>+ Añadir</button>
-      <button className="btn btn-sm" onClick={() => setOpen(false)}>✕</button>
     </div>
   );
 }

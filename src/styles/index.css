@@ -265,17 +265,25 @@ input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;
 
 /* ── RICH TEXT EDITOR ────────────────────────────────────────────────────── */
 .rich-wrap{display:flex;flex-direction:column;width:100%}
-.rich-toolbar{display:none;gap:2px;padding:4px 8px;background:#1e293b;border-radius:7px 7px 0 0;align-items:center}
+.rich-toolbar{display:none;gap:2px;padding:5px 8px;background:#f1f5f9;border:1px solid #e2e8f0;border-bottom:none;border-radius:7px 7px 0 0;align-items:center}
 .rich-toolbar-visible{display:flex}
-.rt-btn{background:transparent;border:none;color:#e2e8f0;font-size:13px;font-weight:700;cursor:pointer;padding:2px 8px;border-radius:4px;font-family:inherit;line-height:1.4}
-.rt-btn:hover{background:rgba(255,255,255,.15)}
+.rt-btn{background:transparent;border:none;color:#374151;font-size:13px;font-weight:700;cursor:pointer;padding:3px 9px;border-radius:5px;font-family:inherit;line-height:1.4;transition:background .1s}
+.rt-btn:hover{background:#e2e8f0}
 .rt-italic{font-style:italic}
-.rt-sep{width:1px;height:16px;background:rgba(255,255,255,.2);margin:0 3px;flex-shrink:0}
+.rt-sep{width:1px;height:16px;background:#d1d5db;margin:0 4px;flex-shrink:0}
 .rich-editor{min-height:36px;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);outline:none;line-height:1.6;word-break:break-word;transition:border-color .15s}
-.rich-editor-focused{border-radius:0 0 7px 7px;border-color:var(--primary);border-top-color:transparent}
+.rich-editor-focused{border-radius:0 0 7px 7px;border-color:#a5b4fc;border-top-color:transparent}
 .rich-editor:empty::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none}
-.rich-editor ul,.rich-editor ol{padding-left:18px;margin:4px 0}
-.rich-editor li{margin:2px 0}
+/* List styles — level 1 */
+.rich-editor ul,.comm-rich-display ul{list-style-type:disc;padding-left:20px;margin:4px 0}
+.rich-editor ol,.comm-rich-display ol{list-style-type:decimal;padding-left:20px;margin:4px 0}
+/* Level 2 (one Tab in) */
+.rich-editor ul ul,.comm-rich-display ul ul{list-style-type:circle}
+.rich-editor ol ol,.comm-rich-display ol ol{list-style-type:lower-alpha}
+/* Level 3 (two Tabs in) */
+.rich-editor ul ul ul,.comm-rich-display ul ul ul{list-style-type:square}
+.rich-editor ol ol ol,.comm-rich-display ol ol ol{list-style-type:lower-roman}
+.rich-editor li,.comm-rich-display li{margin:2px 0}
 
 /* ── LAUNCH VIEW (dedicated) ──────────────────────────────────────────────── */
 .launch-section{margin-bottom:28px}

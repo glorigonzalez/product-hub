@@ -33,14 +33,35 @@ function RichEditor({ initialHtml = '', onChange, onDone, placeholder = '', auto
     onDone?.();
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      // Check if cursor is inside a list item
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const node = sel.getRangeAt(0).startContainer;
+        const inList = !!node.parentElement?.closest('ul, ol');
+        if (inList) {
+          document.execCommand(e.shiftKey ? 'outdent' : 'indent', false, null);
+          onChange(ref.current?.innerHTML || '');
+          return;
+        }
+      }
+      // Not in a list — insert a regular tab space
+      document.execCommand('insertText', false, '\u00a0\u00a0\u00a0\u00a0');
+    }
+  };
+
   return (
     <div className="rich-wrap">
       <div className={`rich-toolbar${focused ? ' rich-toolbar-visible' : ''}`}>
         <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('bold'); }} title="Negrita"><b>B</b></button>
         <button type="button" className="rt-btn rt-italic" onMouseDown={e => { e.preventDefault(); exec('italic'); }} title="Cursiva"><i>I</i></button>
         <span className="rt-sep" />
-        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('insertUnorderedList'); }} title="Lista">• —</button>
-        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('insertOrderedList'); }} title="Numeración">1.</button>
+        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('insertUnorderedList'); }} title="Lista con viñetas">• —</button>
+        <button type="button" className="rt-btn" onMouseDown={e => { e.preventDefault(); exec('insertOrderedList'); }} title="Lista numerada">1.</button>
+        <span className="rt-sep" />
+        <span style={{ fontSize: 10, color: '#6b7280', padding: '0 4px', userSelect: 'none' }}>Tab = indentar</span>
       </div>
       <div
         ref={ref}
@@ -51,6 +72,7 @@ function RichEditor({ initialHtml = '', onChange, onDone, placeholder = '', auto
         onFocus={() => setFocused(true)}
         onBlur={handleBlur}
         onInput={() => onChange(ref.current?.innerHTML || '')}
+        onKeyDown={handleKeyDown}
       />
     </div>
   );

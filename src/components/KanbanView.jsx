@@ -39,6 +39,17 @@ function ProjectCard({ p, projects, onOpen }) {
             {[p.leadTech, p.leadProduct].filter(Boolean).map(initials).join(' ')}
           </span>
         )}
+        {(() => {
+          const comms = p.launch?.comms || [];
+          if (!p.launch || comms.length === 0) return null;
+          const ready = comms.filter(c => c.status === 'ready' || c.status === 'sent').length;
+          const allDone = ready === comms.length;
+          return (
+            <span className={`badge ${allDone ? 'badge-launch-ready' : 'badge-launch'}`}>
+              🚀 {allDone ? '¡Listo!' : `${ready}/${comms.length}`}
+            </span>
+          );
+        })()}
       </div>
 
       <div className="card-footer">

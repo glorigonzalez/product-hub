@@ -172,6 +172,41 @@ export function useAppState() {
     });
   }, [updateProject]);
 
+  // ── Launch plan actions ────────────────────────────────────────────────────
+
+  const updateLaunch = useCallback((projectId, changes) => {
+    const proj = refs.current.projects.find(p => p.id === projectId);
+    if (!proj) return;
+    updateProject(projectId, { launch: { ...(proj.launch || { comms: [] }), ...changes } });
+  }, [updateProject]);
+
+  const addLaunchComm = useCallback((projectId, comm) => {
+    const proj = refs.current.projects.find(p => p.id === projectId);
+    if (!proj) return;
+    const launch = proj.launch || { comms: [] };
+    updateProject(projectId, {
+      launch: { ...launch, comms: [...(launch.comms || []), { id: Date.now(), ...comm }] }
+    });
+  }, [updateProject]);
+
+  const updateLaunchComm = useCallback((projectId, commId, changes) => {
+    const proj = refs.current.projects.find(p => p.id === projectId);
+    if (!proj) return;
+    const launch = proj.launch || { comms: [] };
+    updateProject(projectId, {
+      launch: { ...launch, comms: (launch.comms || []).map(c => c.id === commId ? { ...c, ...changes } : c) }
+    });
+  }, [updateProject]);
+
+  const deleteLaunchComm = useCallback((projectId, commId) => {
+    const proj = refs.current.projects.find(p => p.id === projectId);
+    if (!proj) return;
+    const launch = proj.launch || { comms: [] };
+    updateProject(projectId, {
+      launch: { ...launch, comms: (launch.comms || []).filter(c => c.id !== commId) }
+    });
+  }, [updateProject]);
+
   // ── Reset ──────────────────────────────────────────────────────────────────
 
   const resetData = useCallback(async () => {
@@ -189,6 +224,7 @@ export function useAppState() {
       addProject, updateProject, deleteProject, changeStage,
       addFeedbackItem, toggleFeedbackDone, deleteFeedbackItem, assignFeedback,
       addAlcanceItem, toggleAlcanceItem, assignAlcanceItem, deleteAlcanceItem,
+      updateLaunch, addLaunchComm, updateLaunchComm, deleteLaunchComm,
       resetData,
     },
   };

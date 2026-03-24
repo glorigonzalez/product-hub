@@ -308,6 +308,204 @@ function TabSubproyectos({ project, projects, actions, onOpen, showToast }) {
   );
 }
 
+// ── Tab: Lanzamiento ─────────────────────────────────────────────────────────
+const CHANNELS = {
+  slack:    { icon: '💬', label: 'Slack' },
+  email:    { icon: '📧', label: 'Email' },
+  whatsapp: { icon: '📱', label: 'WhatsApp' },
+  inapp:    { icon: '🔔', label: 'In-app' },
+  push:     { icon: '📲', label: 'Push' },
+  notes:    { icon: '📝', label: 'Docs / Notes' },
+};
+
+const TIMING_OPTIONS = [
+  { key: 'pre',          icon: '📢', label: 'Antes',       desc: 'Anunciar antes del deploy para generar expectativa' },
+  { key: 'simultaneous', icon: '⚡', label: 'Simultáneo',  desc: 'Comunicar en el momento exacto del lanzamiento' },
+  { key: 'post',         icon: '⏳', label: 'Después',     desc: 'Esperar estabilidad antes de comunicar' },
+  { key: 'staged',       icon: '🪜', label: 'Staged',      desc: 'Por fases: interno → VIP → base general' },
+];
+
+const SCHED_LABELS = { before: 'Antes', at: 'Al lanzar', after: 'Después' };
+
+function CommRow({ comm, projectId, actions, showToast }) {
+  const ch = CHANNELS[comm.channel] || { icon: '📌', label: comm.channel };
+  const statusCls = { pending: 'cs-pending', draft: 'cs-draft', ready: 'cs-ready', sent: 'cs-sent' }[comm.status] || 'cs-pending';
+  const statusLabels = { pending: 'Pendiente', draft: 'Borrador', ready: 'Listo ✓', sent: 'Enviado ✓' };
+  const schedCls = { before: 'ct-before', at: 'ct-at', after: 'ct-after' }[comm.scheduledFor] || 'ct-at';
+
+  return (
+    <div className={`comm-item${comm.status === 'ready' || comm.status === 'sent' ? ' comm-done' : ''}`}>
+      <span className="comm-icon">{ch.icon}</span>
+      <span className="comm-label">{comm.label || ch.label}</span>
+      <span className={`comm-timing ${schedCls}`}>{SCHED_LABELS[comm.scheduledFor] || '—'}</span>
+      <select
+        className="comm-status-sel"
+        value={comm.status}
+        onChange={e => actions.updateLaunchComm(projectId, comm.id, { status: e.target.value })}
+      >
+        <option value="pending">Pendiente</option>
+        <option value="draft">Borrador</option>
+        <option value="ready">Listo ✓</option>
+        <option value="sent">Enviado ✓</option>
+      </select>
+      <button className="comm-del" onClick={() => actions.deleteLaunchComm(projectId, comm.id)} title="Eliminar">✕</button>
+    </div>
+  );
+}
+
+function AddCommRow({ projectId, audience, actions, showToast }) {
+  const [open, setOpen]    = useState(false);
+  const [ch,   setCh]      = useState('slack');
+  const [lbl,  setLbl]     = useState('');
+  const [sched,setSched]   = useState('at');
+
+  const handleAdd = () => {
+    const label = lbl.trim() || CHANNELS[ch]?.label || ch;
+    actions.addLaunchComm(projectId, { audience, channel: ch, label, scheduledFor: sched, status: 'pending' });
+    setLbl(''); setCh('slack'); setSched('at'); setOpen(false);
+    showToast('Canal añadido', '🚀');
+  };
+
+  if (!open) {
+    return (
+      <button className="comm-add-btn" onClick={() => setOpen(true)}>
+        + Agregar canal {audience === 'internal' ? 'interno' : 'cliente'}
+      </button>
+    );
+  }
+
+  return (
+    <div className="comm-add-row">
+      <select value={ch} onChange={e => setCh(e.target.value)} style={{ width: 130 }}>
+        {Object.entries(CHANNELS).map(([k, v]) => (
+          <option key={k} value={k}>{v.icon} {v.label}</option>
+        ))}
+      </select>
+      <input
+        type="text"
+        placeholder={`Descripción (ej: ${CHANNELS[ch]?.label} al equipo...)`}
+        value={lbl}
+        onChange={e => setLbl(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && handleAdd()}
+        style={{ flex: 1 }}
+      />
+      <select value={sched} onChange={e => setSched(e.target.value)} style={{ width: 110 }}>
+        <option value="before">Antes</option>
+        <option value="at">Al lanzar</option>
+        <option value="after">Después</option>
+      </select>
+      <button className="btn btn-primary btn-sm" onClick={handleAdd}>+ Añadir</button>
+      <button className="btn btn-sm" onClick={() => setOpen(false)}>✕</button>
+    </div>
+  );
+}
+
+function TabLaunch({ project, actions, showToast }) {
+  const launch = project.launch || {};
+  const comms  = launch.comms || [];
+  const internal = comms.filter(c => c.audience === 'internal');
+  const customer = comms.filter(c => c.audience === 'customer');
+  const readyCount = comms.filter(c => c.status === 'ready' || c.status === 'sent').length;
+  const pct = comms.length ? Math.round((readyCount / comms.length) * 100) : 0;
+
+  const setTiming     = (t) => actions.updateLaunch(project.id, { timing: t });
+  const setTargetDate = (d) => actions.updateLaunch(project.id, { targetDate: d });
+
+  const daysUntil = launch.targetDate
+    ? Math.ceil((new Date(launch.targetDate + 'T00:00:00') - new Date()) / 86400000)
+    : null;
+
+  return (
+    <div>
+      {/* Timing selector */}
+      <div className="section-h" style={{ marginTop: 0 }}>Estrategia de timing</div>
+      <div className="timing-grid">
+        {TIMING_OPTIONS.map(({ key, icon, label, desc }) => (
+          <div
+            key={key}
+            className={`timing-card${launch.timing === key ? ' active' : ''}`}
+            onClick={() => setTiming(key)}
+          >
+            <div className="timing-icon">{icon}</div>
+            <div className="timing-label">{label}</div>
+            <div className="timing-desc">{desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Target date */}
+      <div className="launch-date-row">
+        <span className="launch-date-label">🗓️ Fecha objetivo de lanzamiento</span>
+        <input
+          type="date"
+          value={launch.targetDate || ''}
+          onChange={e => setTargetDate(e.target.value || null)}
+          style={{ border: 'none', background: 'none', fontSize: 13, fontFamily: 'inherit', color: 'var(--text)', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+        />
+        {daysUntil !== null && (
+          <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: daysUntil < 0 ? '#dc2626' : '#7e22ce' }}>
+            {daysUntil < 0 ? `Venció hace ${Math.abs(daysUntil)}d` : daysUntil === 0 ? '¡Hoy!' : `En ${daysUntil} días`}
+          </span>
+        )}
+      </div>
+
+      {/* Progress */}
+      {comms.length > 0 && (
+        <>
+          <div className="section-h">Progreso general</div>
+          <div className="launch-progress-wrap">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+              <span style={{ color: '#7e22ce' }}>{readyCount} de {comms.length} comunicaciones listas</span>
+              <span style={{ color: '#7e22ce' }}>{pct}%</span>
+            </div>
+            <div className="phase-track">
+              <div className="launch-fill" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Internal comms */}
+      <div className="section-h">
+        👥 Comunicación Interna
+        {internal.length > 0 && (
+          <span style={{ float: 'right', fontWeight: 700, color: 'var(--c-produccion)' }}>
+            {internal.filter(c => c.status === 'ready' || c.status === 'sent').length}/{internal.length} ✓
+          </span>
+        )}
+      </div>
+      {internal.length === 0 && (
+        <div style={{ fontSize: 12, color: 'var(--muted)', padding: '8px 0', fontStyle: 'italic' }}>
+          Sin canales internos todavía.
+        </div>
+      )}
+      {internal.map(c => (
+        <CommRow key={c.id} comm={c} projectId={project.id} actions={actions} showToast={showToast} />
+      ))}
+      <AddCommRow projectId={project.id} audience="internal" actions={actions} showToast={showToast} />
+
+      {/* Customer comms */}
+      <div className="section-h" style={{ marginTop: 20 }}>
+        🌍 Comunicación a Clientes
+        {customer.length > 0 && (
+          <span style={{ float: 'right', fontWeight: 700, color: customer.filter(c => c.status === 'ready' || c.status === 'sent').length === customer.length ? 'var(--c-produccion)' : 'var(--c-ideacion)' }}>
+            {customer.filter(c => c.status === 'ready' || c.status === 'sent').length}/{customer.length} ✓
+          </span>
+        )}
+      </div>
+      {customer.length === 0 && (
+        <div style={{ fontSize: 12, color: 'var(--muted)', padding: '8px 0', fontStyle: 'italic' }}>
+          Sin canales de cliente todavía.
+        </div>
+      )}
+      {customer.map(c => (
+        <CommRow key={c.id} comm={c} projectId={project.id} actions={actions} showToast={showToast} />
+      ))}
+      <AddCommRow projectId={project.id} audience="customer" actions={actions} showToast={showToast} />
+    </div>
+  );
+}
+
 // ── Tab: Alcance ─────────────────────────────────────────────────────────────
 function TabAlcance({ project, projects, actions, showToast }) {
   const [newText, setNewText] = useState('');
@@ -381,8 +579,8 @@ function TabAlcance({ project, projects, actions, showToast }) {
 }
 
 // ── Main Modal ───────────────────────────────────────────────────────────────
-export default function ProjectModal({ project: initialProject, projects, nextAlcanceId, actions, onClose, onOpen, showToast }) {
-  const [activeTab, setActiveTab] = useState('contexto');
+export default function ProjectModal({ project: initialProject, projects, nextAlcanceId, actions, onClose, onOpen, showToast, initialTab }) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'contexto');
 
   // Always get the live project from the projects array (so updates reflect immediately)
   const project = projects.find(p => p.id === initialProject.id) ?? initialProject;
@@ -414,6 +612,12 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
     navigator.clipboard.writeText(text).then(() => showToast('Copiado para Linear', '📋'));
   };
 
+  const launchComms  = (project.launch?.comms || []);
+  const launchReady  = launchComms.filter(c => c.status === 'ready' || c.status === 'sent').length;
+  const launchLabel  = launchComms.length > 0
+    ? `🚀 Lanzamiento (${launchReady}/${launchComms.length})`
+    : '🚀 Lanzamiento';
+
   const tabs = [
     { key: 'contexto',     label: 'Contexto' },
     { key: 'brainstorm',   label: 'Brainstorm' },
@@ -421,6 +625,7 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
     { key: 'pitch',        label: 'Pitch & Spec' },
     { key: 'subproyectos', label: subs.length > 0 ? `Subproyectos (${subs.length})` : 'Subproyectos' },
     { key: 'feedback',     label: 'Feedback' },
+    { key: 'launch',       label: launchLabel, highlight: true },
   ];
 
   return (
@@ -488,10 +693,10 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
 
         {/* Tab bar */}
         <div className="modal-tabs">
-          {tabs.map(({ key, label }) => (
+          {tabs.map(({ key, label, highlight }) => (
             <button
               key={key}
-              className={`modal-tab${activeTab === key ? ' active' : ''}`}
+              className={`modal-tab${activeTab === key ? ' active' : ''}${highlight ? ' launch-tab' : ''}`}
               onClick={() => setActiveTab(key)}
             >
               {label}
@@ -525,6 +730,9 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
               project={project} projects={projects}
               actions={actions} showToast={showToast}
             />
+          )}
+          {activeTab === 'launch' && (
+            <TabLaunch project={project} actions={actions} showToast={showToast} />
           )}
         </div>
 

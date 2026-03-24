@@ -208,5 +208,78 @@ input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;
 /* ── STAGE BTNS (modal footer) ────────────────────────────────────────────── */
 .stage-btns{display:flex;gap:6px;flex-wrap:wrap}
 
+/* ── LAUNCH BADGES (kanban card) ──────────────────────────────────────────── */
+.badge-launch{background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff}
+.badge-launch-ready{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+
+/* ── LAUNCH TAB btn in main nav ───────────────────────────────────────────── */
+.launch-tab-btn{color:#7e22ce!important}
+.launch-tab-btn.active{color:#7e22ce!important;border-bottom-color:#7e22ce!important}
+.launch-tab{color:#7e22ce!important}
+.modal-tab.launch-tab.active{color:#7e22ce!important;border-bottom-color:#7e22ce!important}
+.modal-tabs{overflow-x:auto}
+
+/* ── TIMING SELECTOR ──────────────────────────────────────────────────────── */
+.timing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.timing-card{border:2px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;background:var(--white)}
+.timing-card:hover{border-color:#a855f7}
+.timing-card.active{border-color:#7e22ce;background:#fdf4ff}
+.timing-icon{font-size:22px;margin-bottom:4px}
+.timing-label{font-size:12px;font-weight:700;color:var(--text)}
+.timing-card.active .timing-label{color:#7e22ce}
+.timing-desc{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+/* ── LAUNCH DATE ROW ──────────────────────────────────────────────────────── */
+.launch-date-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;margin-top:8px;flex-wrap:wrap}
+.launch-date-label{font-size:12px;font-weight:700;color:#7e22ce;white-space:nowrap}
+
+/* ── LAUNCH PROGRESS ──────────────────────────────────────────────────────── */
+.launch-progress-wrap{background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;padding:12px 14px;margin-bottom:4px}
+.launch-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7e22ce,#a855f7);transition:width .4s}
+
+/* ── COMM ITEMS ───────────────────────────────────────────────────────────── */
+.comm-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;transition:background .1s}
+.comm-item.comm-done{background:#f0fdf4;border-color:#bbf7d0}
+.comm-icon{font-size:15px;flex-shrink:0;width:22px;text-align:center}
+.comm-label{flex:1;font-size:13px;font-weight:500;min-width:0;word-break:break-word}
+.comm-timing{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:700;white-space:nowrap;border:1px solid;flex-shrink:0}
+.ct-before{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.ct-at{background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff}
+.ct-after{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.comm-status-sel{font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;background:white;cursor:pointer;flex-shrink:0}
+.comm-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0 2px;flex-shrink:0}.comm-del:hover{color:#ef4444}
+
+/* ── ADD COMM BUTTON / ROW ────────────────────────────────────────────────── */
+.comm-add-btn{width:100%;padding:8px;border:1px dashed var(--border);border-radius:8px;background:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:4px;text-align:center}
+.comm-add-btn:hover{border-color:#7e22ce;color:#7e22ce;background:#fdf4ff}
+.comm-add-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.comm-add-row input[type=text]{flex:1;min-width:160px}
+
+/* ── LAUNCH VIEW (dedicated) ──────────────────────────────────────────────── */
+.launch-section{margin-bottom:28px}
+.launch-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.launch-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.launch-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s;margin-bottom:10px}
+.launch-card:hover{box-shadow:var(--shadow-md);border-color:#a855f7}
+.launch-card-ready{border-color:#a855f7;background:linear-gradient(135deg,#fdf4ff 0%,#fff 60%)}
+.launch-card-done{opacity:.72;border-style:dashed}
+.launch-card-empty{border-style:dashed;opacity:.85}
+.launch-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:12px}
+.launch-card-name{font-weight:700;font-size:15px;margin-bottom:5px}
+.launch-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.launch-timing-pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff}
+.launch-target-date{font-size:11px;color:var(--muted)}
+.launch-channels{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.launch-ch-pill{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.lch-ready{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.lch-sent{background:#f0fdf4;border-color:#6ee7b7;color:#15803d;opacity:.8}
+.lch-draft{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.lch-pending{background:#f1f5f9;border-color:var(--border);color:var(--muted)}
+.launch-bar-wrap{display:flex;align-items:center;gap:10px}
+.launch-bar-label{font-size:11px;color:var(--muted);white-space:nowrap;width:80px}
+.launch-bar-track{flex:1;height:7px;background:var(--border);border-radius:999px;overflow:hidden}
+.launch-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7e22ce,#a855f7);transition:width .4s}
+.launch-bar-pct{font-size:11px;font-weight:700;color:#7e22ce;width:30px;text-align:right}
+
 /* ── SCROLLBAR ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}

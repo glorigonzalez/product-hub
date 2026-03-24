@@ -6,6 +6,7 @@ import KanbanView from './components/KanbanView';
 import TableView from './components/TableView';
 import FeedbackView from './components/FeedbackView';
 import DevView from './components/DevView';
+import LaunchView from './components/LaunchView';
 import ProjectModal from './components/ProjectModal';
 
 export default function App() {
@@ -14,7 +15,7 @@ export default function App() {
   const [mainTab,    setMainTab]    = useState('kanban');
   const [search,     setSearch]     = useState('');
   const [toast,      setToast]      = useState(null);
-  const [modalState, setModalState] = useState({ open: false, projectId: null });
+  const [modalState, setModalState] = useState({ open: false, projectId: null, initialTab: null });
 
   const showToast = useCallback((msg, icon = '✅') => {
     setToast({ msg, icon });
@@ -22,7 +23,12 @@ export default function App() {
   }, []);
 
   const openProject = useCallback((id) => {
-    setModalState({ open: true, projectId: id });
+    setModalState({ open: true, projectId: id, initialTab: null });
+    document.body.style.overflow = 'hidden';
+  }, []);
+
+  const openProjectOnLaunch = useCallback((id) => {
+    setModalState({ open: true, projectId: id, initialTab: 'launch' });
     document.body.style.overflow = 'hidden';
   }, []);
 
@@ -70,10 +76,11 @@ export default function App() {
           { key: 'table',    label: `Tabla de Control ${filteredProjects.filter(p => !p.parentId).length}` },
           { key: 'feedback', label: `Feedback Inbox ${feedbackItems.filter(f => !f.done).length}` },
           { key: 'dev',      label: 'Por Desarrollador' },
-        ].map(({ key, label }) => (
+          { key: 'launch',   label: `🚀 Lanzamientos${projects.filter(p => p.launch).length > 0 ? ` ${projects.filter(p => p.launch).length}` : ''}`, highlight: true },
+        ].map(({ key, label, highlight }) => (
           <button
             key={key}
-            className={`tab-btn${mainTab === key ? ' active' : ''}`}
+            className={`tab-btn${mainTab === key ? ' active' : ''}${highlight ? ' launch-tab-btn' : ''}`}
             onClick={() => setMainTab(key)}
           >
             {label}
@@ -102,7 +109,8 @@ export default function App() {
             showToast={showToast}
           />
         )}
-        {mainTab === 'dev' && <DevView projects={projects} onOpen={openProject} />}
+        {mainTab === 'dev'    && <DevView projects={projects} onOpen={openProject} />}
+        {mainTab === 'launch' && <LaunchView projects={projects} onOpenLaunch={openProjectOnLaunch} />}
       </div>
 
       {modalState.open && activeProject && (
@@ -114,6 +122,7 @@ export default function App() {
           onClose={closeModal}
           onOpen={openProject}
           showToast={showToast}
+          initialTab={modalState.initialTab}
         />
       )}
 

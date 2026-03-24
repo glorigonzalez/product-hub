@@ -194,8 +194,8 @@ function FeedbackItemRow({ f, projects, projectOptions, allFeedbackItems, action
             <VoicesList mergedFrom={f.mergedFrom} allFeedbackItems={allFeedbackItems} />
           )}
 
-          {/* Resolution */}
-          {!isInMerge && (
+          {/* Resolution — always visible for primary; hidden for candidates */}
+          {(!isInMerge || isPrimary) && (
             <ResolutionField
               resolution={f.resolution || null}
               onSave={val => actions.updateFeedbackItem(f.id, { resolution: val })}

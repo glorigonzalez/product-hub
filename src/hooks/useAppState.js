@@ -157,7 +157,7 @@ export function useAppState() {
     setFeedbackItems(prev => {
       const next = prev.map(f => {
         if (f.id === primaryId) {
-          return { ...f, mergedFrom: [...(f.mergedFrom || []), ...secondaryIds] };
+          return { ...f, mergedFrom: [...(f.mergedFrom || []), ...secondaryIds], resolution: f.resolution ?? null };
         }
         if (secondaryIds.includes(f.id)) {
           return { ...f, mergedInto: primaryId };

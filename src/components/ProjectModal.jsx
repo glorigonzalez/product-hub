@@ -13,17 +13,24 @@ function getDateStatus(p) {
   const due = new Date(p.dueDate + 'T00:00:00');
   const now = new Date();
   const diff = Math.floor((due - now) / 86400000);
-  if (diff < 0)  return { label: `Vencido hace ${Math.abs(diff)}d`, bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' };
+  if (diff < 0)  return { label: `Atrasado ${Math.abs(diff)}d`, bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' };
   if (diff === 0) return { label: 'Vence hoy', bg: '#fffbeb', color: '#d97706', border: '#fde68a' };
   if (diff <= 7)  return { label: `Vence en ${diff}d`, bg: '#fffbeb', color: '#d97706', border: '#fde68a' };
   return null;
 }
 
 // ── Tab: Contexto ────────────────────────────────────────────────────────────
-function TabContexto({ project, projects, onOpen }) {
+function TabContexto({ project, projects, onOpen, onUpdate }) {
   const p = project;
   const parentProj = p.parentId ? projects.find(pp => pp.id === p.parentId) : null;
   const subs = projects.filter(s => s.parentId === p.id);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [draftDesc,   setDraftDesc]   = useState(p.desc || '');
+
+  const saveDesc = () => {
+    onUpdate({ desc: draftDesc.trim() || null });
+    setEditingDesc(false);
+  };
 
   return (
     <div>
@@ -47,10 +54,42 @@ function TabContexto({ project, projects, onOpen }) {
         </>
       )}
 
-      <div className="section-h">Descripción</div>
-      <p style={{ fontSize: 14, lineHeight: 1.6 }}>
-        {p.desc || <span style={{ color: 'var(--muted)' }}>Sin descripción</span>}
-      </p>
+      <div className="section-h" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        Descripción
+        {!editingDesc && (
+          <button
+            className="btn btn-sm"
+            style={{ fontSize: 11, padding: '2px 8px', color: 'var(--primary)' }}
+            onClick={() => { setDraftDesc(p.desc || ''); setEditingDesc(true); }}
+          >
+            ✏️ Editar
+          </button>
+        )}
+      </div>
+
+      {editingDesc ? (
+        <div>
+          <textarea
+            style={{ height: 90, marginBottom: 6 }}
+            placeholder="Describe el proyecto..."
+            value={draftDesc}
+            onChange={e => setDraftDesc(e.target.value)}
+            autoFocus
+          />
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="btn btn-primary btn-sm" onClick={saveDesc}>Guardar</button>
+            <button className="btn btn-sm" onClick={() => setEditingDesc(false)}>Cancelar</button>
+          </div>
+        </div>
+      ) : (
+        <p
+          style={{ fontSize: 14, lineHeight: 1.6, cursor: 'text', minHeight: 24 }}
+          onClick={() => { setDraftDesc(p.desc || ''); setEditingDesc(true); }}
+          title="Clic para editar"
+        >
+          {p.desc || <span style={{ color: 'var(--muted)' }}>Sin descripción — clic para agregar</span>}
+        </p>
+      )}
 
       {p.phase && p.totalPhases && (
         <>
@@ -707,7 +746,7 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
         {/* Tab body */}
         <div id="modalBody" className="modal-body">
           {activeTab === 'contexto' && (
-            <TabContexto project={project} projects={projects} onOpen={(id) => { onClose(); setTimeout(() => onOpen(id), 50); }} />
+            <TabContexto project={project} projects={projects} onOpen={(id) => { onClose(); setTimeout(() => onOpen(id), 50); }} onUpdate={handleUpdate} />
           )}
           {activeTab === 'brainstorm' && (
             <TabBrainstorm project={project} onUpdate={handleUpdate} showToast={showToast} />

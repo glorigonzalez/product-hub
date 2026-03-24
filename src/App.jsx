@@ -10,7 +10,7 @@ import LaunchView from './components/LaunchView';
 import ProjectModal from './components/ProjectModal';
 
 export default function App() {
-  const { projects, feedbackItems, clients, nextAlcanceId, loaded, actions } = useAppState();
+  const { projects, feedbackItems, clients, features, nextAlcanceId, loaded, actions } = useAppState();
 
   const [mainTab,    setMainTab]    = useState('kanban');
   const [search,     setSearch]     = useState('');
@@ -106,6 +106,7 @@ export default function App() {
             feedbackItems={feedbackItems}
             projects={projects}
             clients={clients}
+            features={features}
             actions={actions}
             showToast={showToast}
           />

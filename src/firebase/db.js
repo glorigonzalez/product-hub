@@ -24,6 +24,7 @@ export async function loadFromFirestore(seedProjects) {
     projects:      [...(data.projects || []), ...newSeeds],
     feedbackItems: data.feedbackItems  || [],
     clients:       data.clients        || [],
+    features:      data.features       || [],
     nextId:        data.nextId         || 6,
     nextFbId:      data.nextFbId       || 1,
     nextAlcanceId: data.nextAlcanceId  || 1,

@@ -255,7 +255,7 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
   const [filterProj,   setFilterProj]   = useState('');
   const [filterClient, setFilterClient] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [sortBy,       setSortBy]       = useState('date'); // 'date' | 'incidence'
+  const [sortBy,       setSortBy]       = useState('date'); // 'date' | 'incidence' | 'status' | 'client'
 
   // Merge state
   const [mergeMode,        setMergeMode]        = useState(null); // { primaryId }
@@ -276,9 +276,23 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
       if (sortBy === 'incidence') {
         const ia = 1 + (a.mergedFrom?.length || 0);
         const ib = 1 + (b.mergedFrom?.length || 0);
-        return ib - ia;
+        return ib - ia || a.date.localeCompare(b.date) * -1;
       }
-      return 0; // keep Firestore order (most recent first)
+      if (sortBy === 'status') {
+        const order = { pendiente: 0, revision: 1, 'ahora-no': 2, resuelto: 3 };
+        const sa = order[a.status || 'pendiente'] ?? 0;
+        const sb = order[b.status || 'pendiente'] ?? 0;
+        return sa - sb;
+      }
+      if (sortBy === 'client') {
+        const ca = (a.client || '').toLowerCase();
+        const cb = (b.client || '').toLowerCase();
+        if (!ca && !cb) return 0;
+        if (!ca) return 1;
+        if (!cb) return -1;
+        return ca.localeCompare(cb);
+      }
+      return 0; // 'date' — keep Firestore insertion order (most recent first)
     });
 
   const handleAdd = () => {
@@ -376,6 +390,8 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
         <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ fontSize: 13, marginLeft: 'auto' }}>
           <option value="date">📅 Más reciente</option>
           <option value="incidence">👥 Más solicitado</option>
+          <option value="status">🏷 Por estado</option>
+          <option value="client">👤 Por cliente</option>
         </select>
       </div>
 

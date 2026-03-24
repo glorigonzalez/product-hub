@@ -1,22 +1,47 @@
 import { useState } from 'react';
 
-export default function FeedbackView({ feedbackItems, projects, actions, showToast }) {
-  const [newText,     setNewText]     = useState('');
-  const [newSource,   setNewSource]   = useState('Slack');
-  const [newProjId,   setNewProjId]   = useState('');
-  const [filterProj,  setFilterProj]  = useState('');
+function ClientInput({ value, onChange, clients, id = 'fb-clients-list' }) {
+  return (
+    <>
+      <input
+        type="text"
+        list={id}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="Cliente (opcional)..."
+        style={{ flex: '0 0 160px', minWidth: 130 }}
+      />
+      <datalist id={id}>
+        {clients.map(c => <option key={c} value={c} />)}
+      </datalist>
+    </>
+  );
+}
+
+export default function FeedbackView({ feedbackItems, projects, clients, actions, showToast }) {
+  const [newText,    setNewText]    = useState('');
+  const [newSource,  setNewSource]  = useState('Slack');
+  const [newProjId,  setNewProjId]  = useState('');
+  const [newClient,  setNewClient]  = useState('');
+  const [filterProj, setFilterProj] = useState('');
+  const [filterClient, setFilterClient] = useState('');
 
   const rootProjects = projects.filter(p => !p.parentId);
 
-  const visible = feedbackItems.filter(f =>
-    !filterProj || String(f.projectId) === filterProj
-  );
+  const visible = feedbackItems.filter(f => {
+    if (filterProj   && String(f.projectId) !== filterProj)   return false;
+    if (filterClient && f.client !== filterClient)             return false;
+    return true;
+  });
 
   const handleAdd = () => {
     if (!newText.trim()) return;
-    actions.addFeedbackItem(newText.trim(), newProjId ? Number(newProjId) : null, newSource);
+    const client = newClient.trim() || null;
+    if (client) actions.addClient(client);
+    actions.addFeedbackItem(newText.trim(), newProjId ? Number(newProjId) : null, newSource, client);
     setNewText('');
     setNewProjId('');
+    setNewClient('');
     showToast('Feedback añadido', '💬');
   };
 
@@ -30,19 +55,20 @@ export default function FeedbackView({ feedbackItems, projects, actions, showToa
           onChange={e => setNewText(e.target.value)}
           rows={3}
         />
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8, alignItems: 'center' }}>
           <select value={newSource} onChange={e => setNewSource(e.target.value)} style={{ flex: '0 0 120px' }}>
             <option>Slack</option>
             <option>Email</option>
             <option>Reunión</option>
             <option>Manual</option>
           </select>
+          <ClientInput value={newClient} onChange={setNewClient} clients={clients} id="fb-clients-add" />
           <select
             value={newProjId}
             onChange={e => setNewProjId(e.target.value)}
-            style={{ flex: 1, minWidth: 180 }}
+            style={{ flex: 1, minWidth: 160 }}
           >
-            <option value="">Sin asignar</option>
+            <option value="">Sin asignar a proyecto</option>
             {rootProjects.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -51,15 +77,21 @@ export default function FeedbackView({ feedbackItems, projects, actions, showToa
         </div>
       </div>
 
-      {/* Filter */}
-      <div style={{ margin: '16px 0 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* Filters */}
+      <div style={{ margin: '16px 0 12px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>Filtrar:</span>
         <select value={filterProj} onChange={e => setFilterProj(e.target.value)} style={{ fontSize: 13 }}>
-          <option value="">Todos</option>
+          <option value="">Todos los proyectos</option>
           {rootProjects.map(p => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
+        {clients.length > 0 && (
+          <select value={filterClient} onChange={e => setFilterClient(e.target.value)} style={{ fontSize: 13 }}>
+            <option value="">Todos los clientes</option>
+            {clients.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        )}
       </div>
 
       {/* List */}
@@ -76,15 +108,16 @@ export default function FeedbackView({ feedbackItems, projects, actions, showToa
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, lineHeight: 1.5 }}>{f.text}</div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 5, flexWrap: 'wrap', alignItems: 'center' }}>
                     <span className="badge badge-gray">{f.source}</span>
-                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{f.date}</span>
-                    {proj && (
-                      <span className="feedback-proj">{proj.name}</span>
+                    {f.client && (
+                      <span className="badge badge-client">👤 {f.client}</span>
                     )}
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{f.date}</span>
+                    {proj && <span className="feedback-proj">{proj.name}</span>}
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <select
                     style={{ fontSize: 12, maxWidth: 160 }}
                     value={f.projectId ?? ''}

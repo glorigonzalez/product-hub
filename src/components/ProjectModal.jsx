@@ -166,15 +166,22 @@ function TabBrainstorm({ project, onUpdate, showToast }) {
 }
 
 // ── Tab: Feedback ────────────────────────────────────────────────────────────
-function TabFeedback({ project, actions, showToast }) {
-  const [newFb, setNewFb] = useState('');
-  const feedback = project.feedback || [];
+function TabFeedback({ project, actions, clients, showToast }) {
+  const [newFb,     setNewFb]     = useState('');
+  const [newClient, setNewClient] = useState('');
+  // Normalize: feedback items may be plain strings (legacy) or { text, client }
+  const rawFeedback = project.feedback || [];
+  const feedback = rawFeedback.map(f => typeof f === 'string' ? { text: f, client: null } : f);
 
   const handleAdd = () => {
     if (!newFb.trim()) return;
-    actions.updateProject(project.id, { feedback: [...feedback, newFb.trim()] });
-    actions.addFeedbackItem(newFb.trim(), project.id, 'Manual');
+    const client = newClient.trim() || null;
+    if (client) actions.addClient(client);
+    const newItem = { text: newFb.trim(), client };
+    actions.updateProject(project.id, { feedback: [...rawFeedback, newItem] });
+    actions.addFeedbackItem(newFb.trim(), project.id, 'Manual', client);
     setNewFb('');
+    setNewClient('');
     showToast('Feedback añadido', '💬');
   };
 
@@ -186,19 +193,38 @@ function TabFeedback({ project, actions, showToast }) {
         : feedback.map((f, i) => (
             <div key={i} className="feedback-quote">
               <span className="q-icon">💬</span>
-              <span>{f}</span>
+              <div style={{ flex: 1 }}>
+                <div>{f.text}</div>
+                {f.client && (
+                  <span className="badge badge-client" style={{ marginTop: 4, display: 'inline-block' }}>
+                    👤 {f.client}
+                  </span>
+                )}
+              </div>
             </div>
           ))
       }
       <div className="section-h" style={{ marginTop: 8 }}>Agregar feedback manual</div>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         <input
           type="text"
           placeholder="Pega o escribe el feedback..."
           value={newFb}
           onChange={e => setNewFb(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleAdd()}
+          style={{ flex: 1, minWidth: 200 }}
         />
+        <input
+          type="text"
+          list="modal-clients-list"
+          placeholder="Cliente (opcional)..."
+          value={newClient}
+          onChange={e => setNewClient(e.target.value)}
+          style={{ width: 160 }}
+        />
+        <datalist id="modal-clients-list">
+          {(clients || []).map(c => <option key={c} value={c} />)}
+        </datalist>
         <button className="btn btn-primary btn-sm" onClick={handleAdd}>Añadir</button>
       </div>
     </div>
@@ -618,7 +644,7 @@ function TabAlcance({ project, projects, actions, showToast }) {
 }
 
 // ── Main Modal ───────────────────────────────────────────────────────────────
-export default function ProjectModal({ project: initialProject, projects, nextAlcanceId, actions, onClose, onOpen, showToast, initialTab }) {
+export default function ProjectModal({ project: initialProject, projects, clients, nextAlcanceId, actions, onClose, onOpen, showToast, initialTab }) {
   const [activeTab, setActiveTab] = useState(initialTab || 'contexto');
 
   // Always get the live project from the projects array (so updates reflect immediately)
@@ -752,7 +778,7 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
             <TabBrainstorm project={project} onUpdate={handleUpdate} showToast={showToast} />
           )}
           {activeTab === 'feedback' && (
-            <TabFeedback project={project} actions={actions} showToast={showToast} />
+            <TabFeedback project={project} actions={actions} clients={clients || []} showToast={showToast} />
           )}
           {activeTab === 'pitch' && (
             <TabPitch project={project} onUpdate={handleUpdate} showToast={showToast} />

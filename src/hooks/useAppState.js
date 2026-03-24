@@ -7,6 +7,7 @@ function today() { return new Date().toISOString().split('T')[0]; }
 export function useAppState() {
   const [projects,      setProjects]      = useState(SEED_PROJECTS);
   const [feedbackItems, setFeedbackItems] = useState([]);
+  const [clients,       setClients]       = useState([]);
   const [nextId,        setNextId]        = useState(INITIAL_NEXT_ID);
   const [nextFbId,      setNextFbId]      = useState(INITIAL_NEXT_FB_ID);
   const [nextAlcanceId, setNextAlcanceId] = useState(INITIAL_NEXT_ALCANCE_ID);
@@ -16,13 +17,13 @@ export function useAppState() {
 
   // Counters in refs so save callback always has fresh values without re-creating
   const refs = useRef({});
-  refs.current = { projects, feedbackItems, nextId, nextFbId, nextAlcanceId };
+  refs.current = { projects, feedbackItems, clients, nextId, nextFbId, nextAlcanceId };
 
   const scheduleSave = useCallback(() => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       const { projects, feedbackItems, nextId, nextFbId, nextAlcanceId } = refs.current;
-      saveToFirestore({ projects, feedbackItems, nextId, nextFbId, nextAlcanceId })
+      saveToFirestore({ projects, feedbackItems, clients, nextId, nextFbId, nextAlcanceId })
         .catch(e => console.warn('Error guardando en Firebase:', e));
     }, 600);
   }, []);
@@ -34,6 +35,7 @@ export function useAppState() {
         if (data) {
           setProjects(data.projects);
           setFeedbackItems(data.feedbackItems);
+          setClients(data.clients || []);
           setNextId(data.nextId);
           setNextFbId(data.nextFbId);
           setNextAlcanceId(data.nextAlcanceId);
@@ -96,9 +98,20 @@ export function useAppState() {
 
   // ── Feedback actions ───────────────────────────────────────────────────────
 
-  const addFeedbackItem = useCallback((text, projectId = null, source = 'Manual') => {
+  const addClient = useCallback((name) => {
+    const trimmed = name.trim();
+    if (!trimmed || refs.current.clients.includes(trimmed)) return;
+    setClients(prev => {
+      const next = [...prev, trimmed].sort((a, b) => a.localeCompare(b));
+      refs.current.clients = next;
+      return next;
+    });
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const addFeedbackItem = useCallback((text, projectId = null, source = 'Manual', client = null) => {
     const id = refs.current.nextFbId;
-    const item = { id, text, projectId, source, date: today(), done: false };
+    const item = { id, text, projectId, source, client: client || null, date: today(), done: false };
     setFeedbackItems(prev => {
       const next = [item, ...prev];
       refs.current.feedbackItems = next;
@@ -218,10 +231,12 @@ export function useAppState() {
   return {
     projects,
     feedbackItems,
+    clients,
     nextAlcanceId,
     loaded,
     actions: {
       addProject, updateProject, deleteProject, changeStage,
+      addClient,
       addFeedbackItem, toggleFeedbackDone, deleteFeedbackItem, assignFeedback,
       addAlcanceItem, toggleAlcanceItem, assignAlcanceItem, deleteAlcanceItem,
       updateLaunch, addLaunchComm, updateLaunchComm, deleteLaunchComm,

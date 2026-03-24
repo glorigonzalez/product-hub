@@ -23,6 +23,7 @@ export async function loadFromFirestore(seedProjects) {
   return {
     projects:      [...(data.projects || []), ...newSeeds],
     feedbackItems: data.feedbackItems  || [],
+    clients:       data.clients        || [],
     nextId:        data.nextId         || 6,
     nextFbId:      data.nextFbId       || 1,
     nextAlcanceId: data.nextAlcanceId  || 1,

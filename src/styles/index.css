@@ -78,6 +78,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2
 .badge-gray{background:#f1f5f9;color:var(--muted)}
 .badge-green{background:#d1fae5;color:#065f46}
 .badge-amber{background:#fef3c7;color:#92400e}
+.badge-client{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
 
 /* ── STAGE PILLS ──────────────────────────────────────────────────────────── */
 .stage-pill{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}

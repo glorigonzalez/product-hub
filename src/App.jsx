@@ -10,7 +10,7 @@ import LaunchView from './components/LaunchView';
 import ProjectModal from './components/ProjectModal';
 
 export default function App() {
-  const { projects, feedbackItems, nextAlcanceId, loaded, actions } = useAppState();
+  const { projects, feedbackItems, clients, nextAlcanceId, loaded, actions } = useAppState();
 
   const [mainTab,    setMainTab]    = useState('kanban');
   const [search,     setSearch]     = useState('');
@@ -105,6 +105,7 @@ export default function App() {
           <FeedbackView
             feedbackItems={feedbackItems}
             projects={projects}
+            clients={clients}
             actions={actions}
             showToast={showToast}
           />
@@ -117,6 +118,7 @@ export default function App() {
         <ProjectModal
           project={activeProject}
           projects={projects}
+          clients={clients}
           nextAlcanceId={nextAlcanceId}
           actions={actions}
           onClose={closeModal}

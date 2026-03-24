@@ -94,7 +94,7 @@ function ResolutionField({ resolution, onSave }) {
   );
 }
 
-function FeedbackItemRow({ f, projects, rootProjects, actions, showToast }) {
+function FeedbackItemRow({ f, projects, projectOptions, actions, showToast }) {
   const [editing,   setEditing]   = useState(false);
   const [draftText, setDraftText] = useState(f.text);
 
@@ -159,7 +159,7 @@ function FeedbackItemRow({ f, projects, rootProjects, actions, showToast }) {
             }}
           >
             <option value="">Sin asignar</option>
-            {rootProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {projectOptions.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
           <div style={{ display: 'flex', gap: 4 }}>
             {!editing && (
@@ -183,6 +183,19 @@ function FeedbackItemRow({ f, projects, rootProjects, actions, showToast }) {
   );
 }
 
+// ── Helper: ordered flat list with subprojects indented ───────────────────────
+function buildProjectOptions(projects) {
+  const roots = projects.filter(p => !p.parentId);
+  const result = [];
+  roots.forEach(root => {
+    result.push({ id: root.id, label: root.name });
+    projects
+      .filter(p => p.parentId === root.id)
+      .forEach(sub => result.push({ id: sub.id, label: `↳ ${sub.name}` }));
+  });
+  return result;
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function FeedbackView({ feedbackItems, projects, clients, actions, showToast }) {
   const [newText,      setNewText]      = useState('');
@@ -192,7 +205,7 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
   const [filterClient, setFilterClient] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
-  const rootProjects = projects.filter(p => !p.parentId);
+  const projectOptions = buildProjectOptions(projects);
 
   const visible = feedbackItems.filter(f => {
     if (filterProj   && String(f.projectId) !== filterProj)          return false;
@@ -230,7 +243,7 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
             style={{ flex: 1, minWidth: 160 }}
           >
             <option value="">Sin asignar a proyecto</option>
-            {rootProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {projectOptions.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
           <button className="btn btn-primary" onClick={handleAdd}>Añadir</button>
         </div>
@@ -241,7 +254,7 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
         <span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>Filtrar:</span>
         <select value={filterProj} onChange={e => setFilterProj(e.target.value)} style={{ fontSize: 13 }}>
           <option value="">Todos los proyectos</option>
-          {rootProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {projectOptions.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
         </select>
         {clients.length > 0 && (
           <select value={filterClient} onChange={e => setFilterClient(e.target.value)} style={{ fontSize: 13 }}>
@@ -263,7 +276,7 @@ export default function FeedbackView({ feedbackItems, projects, clients, actions
               key={f.id}
               f={f}
               projects={projects}
-              rootProjects={rootProjects}
+              projectOptions={projectOptions}
               actions={actions}
               showToast={showToast}
             />

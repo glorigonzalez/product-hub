@@ -103,51 +103,41 @@ function LaunchCard({ project, onOpenLaunch }) {
   );
 }
 
-export default function LaunchView({ projects, onOpenLaunch }) {
-  // Only show projects that have a launch plan started
-  const withLaunch = projects.filter(p => p.launch);
+const STAGE_ORDER_DISPLAY = ['ideacion', 'pitchdev', 'pitch', 'desarrollo', 'qa', 'produccion'];
 
-  // Categorize
-  const launched     = withLaunch.filter(p => {
+export default function LaunchView({ projects, onOpenLaunch }) {
+  const rootProjects = projects.filter(p => !p.parentId);
+
+  const withLaunch    = rootProjects.filter(p => p.launch);
+  const withoutLaunch = rootProjects.filter(p => !p.launch);
+
+  // Categorize projects that have a launch plan
+  const launched   = withLaunch.filter(p => {
     const comms = p.launch?.comms || [];
     return p.stage === 'produccion' && comms.length > 0 && comms.every(c => c.status === 'sent' || c.status === 'ready');
   });
-  const allReady     = withLaunch.filter(p => {
+  const allReady   = withLaunch.filter(p => {
     const comms = p.launch?.comms || [];
     const ready = comms.filter(c => c.status === 'ready' || c.status === 'sent').length;
     return !launched.includes(p) && comms.length > 0 && ready === comms.length;
   });
-  const inProgress   = withLaunch.filter(p =>
-    !launched.includes(p) && !allReady.includes(p)
-  );
+  const inProgress = withLaunch.filter(p => !launched.includes(p) && !allReady.includes(p));
 
-  // Projects without a launch plan yet (to suggest starting one)
-  const withoutLaunch = projects.filter(p => !p.launch && !p.parentId &&
-    ['desarrollo', 'qa'].includes(p.stage)
+  // Sort "sin plan" by stage order
+  const withoutSorted = [...withoutLaunch].sort(
+    (a, b) => STAGE_ORDER_DISPLAY.indexOf(a.stage) - STAGE_ORDER_DISPLAY.indexOf(b.stage)
   );
-
-  if (withLaunch.length === 0 && withoutLaunch.length === 0) {
-    return (
-      <div style={{ padding: 32 }}>
-        <div className="empty-state">
-          🚀 No hay planes de lanzamiento todavía.<br />
-          Abre un proyecto en estado <strong>Desarrollo</strong> o <strong>QA</strong> y ve al tab <strong>🚀 Lanzamiento</strong> para crear uno.
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: '24px', maxWidth: 860, margin: '0 auto' }}>
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 20, fontWeight: 800 }}>🚀 Planes de Lanzamiento</h1>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
-            {withLaunch.length} {withLaunch.length === 1 ? 'proyecto' : 'proyectos'} con plan activo
-            {allReady.length > 0 && ` · ${allReady.length} listo${allReady.length > 1 ? 's' : ''} para lanzar`}
-          </p>
-        </div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 800 }}>🚀 Planes de Lanzamiento</h1>
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+          {withLaunch.length > 0
+            ? `${withLaunch.length} ${withLaunch.length === 1 ? 'proyecto' : 'proyectos'} con plan activo${allReady.length > 0 ? ` · ${allReady.length} listo${allReady.length > 1 ? 's' : ''} para lanzar` : ''}`
+            : 'Haz clic en cualquier proyecto para crear su plan de lanzamiento'}
+        </p>
       </div>
 
       {/* ── Listos para lanzar ── */}
@@ -180,13 +170,13 @@ export default function LaunchView({ projects, onOpenLaunch }) {
         </div>
       )}
 
-      {/* ── Sugeridos (en desarrollo/QA sin plan) ── */}
-      {withoutLaunch.length > 0 && (
+      {/* ── Sin plan — todos los proyectos restantes ── */}
+      {withoutSorted.length > 0 && (
         <div className="launch-section">
           <div className="launch-section-title" style={{ color: 'var(--muted)' }}>
-            💡 &nbsp;Sin plan de lanzamiento aún
+            💡 &nbsp;Sin plan de lanzamiento · {withoutSorted.length} proyecto{withoutSorted.length !== 1 ? 's' : ''}
           </div>
-          {withoutLaunch.map(p => {
+          {withoutSorted.map(p => {
             const st = STAGES[p.stage];
             return (
               <div
@@ -196,17 +186,27 @@ export default function LaunchView({ projects, onOpenLaunch }) {
               >
                 <div className="launch-card-top">
                   <div style={{ flex: 1 }}>
-                    <div className="launch-card-name" style={{ color: 'var(--muted)' }}>{p.name}</div>
+                    <div className="launch-card-name">{p.name}</div>
                     <div className="launch-card-meta">
                       <span className={`stage-pill ${p.stage}`} style={{ fontSize: 11, padding: '2px 8px' }}>
                         {st.icon} {st.short}
                       </span>
+                      {p.dueDate && (
+                        <span style={{ fontSize: 11, color: 'var(--muted)' }}>📅 {p.dueDate}</span>
+                      )}
                     </div>
                   </div>
-                  <button className="btn btn-sm" style={{ color: '#7e22ce', borderColor: '#e9d5ff' }}>
+                  <button
+                    className="btn btn-sm"
+                    style={{ color: '#7e22ce', borderColor: '#e9d5ff', background: '#fdf4ff', whiteSpace: 'nowrap' }}
+                    onClick={e => { e.stopPropagation(); onOpenLaunch(p.id); }}
+                  >
                     + Crear plan →
                   </button>
                 </div>
+                {p.desc && (
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 }}>{p.desc}</div>
+                )}
               </div>
             );
           })}

@@ -7,7 +7,6 @@ export default function Header({ search, onSearch, onNewProject, onExport, onRes
       </div>
 
       <div className="search-wrap">
-        <span className="search-icon">🔍</span>
         <input
           className="search-input"
           type="text"

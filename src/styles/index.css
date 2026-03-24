@@ -213,10 +213,6 @@ input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;
 .badge-launch-ready{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
 
 /* ── LAUNCH TAB btn in main nav ───────────────────────────────────────────── */
-.launch-tab-btn{color:#7e22ce!important}
-.launch-tab-btn.active{color:#7e22ce!important;border-bottom-color:#7e22ce!important}
-.launch-tab{color:#7e22ce!important}
-.modal-tab.launch-tab.active{color:#7e22ce!important;border-bottom-color:#7e22ce!important}
 .modal-tabs{overflow-x:auto}
 
 /* ── TIMING SELECTOR ──────────────────────────────────────────────────────── */

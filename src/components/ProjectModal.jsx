@@ -693,10 +693,10 @@ export default function ProjectModal({ project: initialProject, projects, nextAl
 
         {/* Tab bar */}
         <div className="modal-tabs">
-          {tabs.map(({ key, label, highlight }) => (
+          {tabs.map(({ key, label }) => (
             <button
               key={key}
-              className={`modal-tab${activeTab === key ? ' active' : ''}${highlight ? ' launch-tab' : ''}`}
+              className={`modal-tab${activeTab === key ? ' active' : ''}`}
               onClick={() => setActiveTab(key)}
             >
               {label}

@@ -76,11 +76,11 @@ export default function App() {
           { key: 'table',    label: `Tabla de Control ${filteredProjects.filter(p => !p.parentId).length}` },
           { key: 'feedback', label: `Feedback Inbox ${feedbackItems.filter(f => !f.done).length}` },
           { key: 'dev',      label: 'Por Desarrollador' },
-          { key: 'launch',   label: `🚀 Lanzamientos${projects.filter(p => p.launch).length > 0 ? ` ${projects.filter(p => p.launch).length}` : ''}`, highlight: true },
-        ].map(({ key, label, highlight }) => (
+          { key: 'launch',   label: `🚀 Lanzamientos${projects.filter(p => p.launch).length > 0 ? ` ${projects.filter(p => p.launch).length}` : ''}` },
+        ].map(({ key, label }) => (
           <button
             key={key}
-            className={`tab-btn${mainTab === key ? ' active' : ''}${highlight ? ' launch-tab-btn' : ''}`}
+            className={`tab-btn${mainTab === key ? ' active' : ''}`}
             onClick={() => setMainTab(key)}
           >
             {label}

@@ -22,7 +22,7 @@ export function useAppState() {
   const scheduleSave = useCallback(() => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      const { projects, feedbackItems, nextId, nextFbId, nextAlcanceId } = refs.current;
+      const { projects, feedbackItems, clients, nextId, nextFbId, nextAlcanceId } = refs.current;
       saveToFirestore({ projects, feedbackItems, clients, nextId, nextFbId, nextAlcanceId })
         .catch(e => console.warn('Error guardando en Firebase:', e));
     }, 600);
@@ -109,9 +109,9 @@ export function useAppState() {
     scheduleSave();
   }, [scheduleSave]);
 
-  const addFeedbackItem = useCallback((text, projectId = null, source = 'Manual', client = null) => {
+  const addFeedbackItem = useCallback((text, projectId = null, _source = null, client = null) => {
     const id = refs.current.nextFbId;
-    const item = { id, text, projectId, source, client: client || null, date: today(), done: false };
+    const item = { id, text, projectId, client: client || null, date: today(), status: 'pendiente', resolution: null };
     setFeedbackItems(prev => {
       const next = [item, ...prev];
       refs.current.feedbackItems = next;
@@ -122,9 +122,9 @@ export function useAppState() {
     return id;
   }, [scheduleSave]);
 
-  const toggleFeedbackDone = useCallback((id) => {
+  const updateFeedbackItem = useCallback((id, changes) => {
     setFeedbackItems(prev => {
-      const next = prev.map(f => f.id === id ? { ...f, done: !f.done } : f);
+      const next = prev.map(f => f.id === id ? { ...f, ...changes } : f);
       refs.current.feedbackItems = next;
       return next;
     });
@@ -237,7 +237,7 @@ export function useAppState() {
     actions: {
       addProject, updateProject, deleteProject, changeStage,
       addClient,
-      addFeedbackItem, toggleFeedbackDone, deleteFeedbackItem, assignFeedback,
+      addFeedbackItem, updateFeedbackItem, deleteFeedbackItem, assignFeedback,
       addAlcanceItem, toggleAlcanceItem, assignAlcanceItem, deleteAlcanceItem,
       updateLaunch, addLaunchComm, updateLaunchComm, deleteLaunchComm,
       resetData,

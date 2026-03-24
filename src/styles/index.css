@@ -278,5 +278,25 @@ input[type=date]{border:none;background:none;font-size:11px;font-family:inherit;
 .launch-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7e22ce,#a855f7);transition:width .4s}
 .launch-bar-pct{font-size:11px;font-weight:700;color:#7e22ce;width:30px;text-align:right}
 
+/* ── FEEDBACK STATUS BAR ─────────────────────────────────────────────────── */
+.fb-status-bar{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.fb-status-btn{height:24px;padding:0 9px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;font-family:inherit;transition:all .12s}
+.fb-s-pendiente{border-color:#f59e0b;color:#d97706}.fb-s-pendiente.active{background:#fffbeb}
+.fb-s-revision{border-color:#3b82f6;color:#2563eb}.fb-s-revision.active{background:#eff6ff}
+.fb-s-resuelto{border-color:#10b981;color:#059669}.fb-s-resuelto.active{background:#ecfdf5}
+.fb-s-ahora-no{border-color:#9ca3af;color:#6b7280}.fb-s-ahora-no.active{background:#f9fafb}
+
+/* ── RESOLUTION FIELD ────────────────────────────────────────────────────── */
+.resolution-empty{font-size:12px;color:#9ca3af;font-style:italic;cursor:pointer;margin-top:7px;padding:4px 0}
+.resolution-empty:hover{color:var(--primary)}
+.resolution-filled{display:flex;gap:6px;align-items:flex-start;margin-top:7px;font-size:12px;background:#f8f7ff;border-radius:6px;padding:6px 10px}
+.resolution-label{font-weight:700;color:#7c3aed;white-space:nowrap;flex-shrink:0}
+.resolution-text{color:#374151;flex:1;line-height:1.45}
+.resolution-editing{margin-top:7px}
+.resolution-textarea{width:100%;font-size:13px;border:1.5px solid #a78bfa;border-radius:6px;padding:7px 10px;font-family:inherit;resize:vertical}
+.resolution-textarea:focus{outline:none;box-shadow:0 0 0 2px #ede9fe}
+.btn-icon-sm{background:transparent;border:none;cursor:pointer;font-size:12px;padding:2px 4px;color:#9ca3af}
+.btn-icon-sm:hover{color:var(--primary)}
+
 /* ── SCROLLBAR ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}

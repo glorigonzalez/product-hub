@@ -74,7 +74,7 @@ export default function App() {
         {[
           { key: 'kanban',   label: `Kanban ${filteredProjects.filter(p => !p.parentId).length}` },
           { key: 'table',    label: `Tabla de Control ${filteredProjects.filter(p => !p.parentId).length}` },
-          { key: 'feedback', label: `Feedback Inbox ${feedbackItems.filter(f => !f.done).length}` },
+          { key: 'feedback', label: `Feedback Inbox ${feedbackItems.filter(f => !['resuelto','ahora-no'].includes(f.status || 'pendiente')).length}` },
           { key: 'dev',      label: 'Por Desarrollador' },
           { key: 'launch',   label: `🚀 Lanzamientos${projects.filter(p => p.launch).length > 0 ? ` ${projects.filter(p => p.launch).length}` : ''}` },
         ].map(({ key, label }) => (

@@ -165,21 +165,98 @@ function TabBrainstorm({ project, onUpdate, showToast }) {
   );
 }
 
+// ── Feedback status helpers ───────────────────────────────────────────────────
+const FB_STATUS_OPTIONS = [
+  { key: 'pendiente', label: '🟡 Pendiente' },
+  { key: 'revision',  label: '🔵 En revisión' },
+  { key: 'resuelto',  label: '✅ Resuelto' },
+  { key: 'ahora-no',  label: '⏸ Ahora no' },
+];
+
+function FbStatusBar({ status, onChange }) {
+  return (
+    <div className="fb-status-bar">
+      {FB_STATUS_OPTIONS.map(opt => (
+        <button
+          key={opt.key}
+          className={`fb-status-btn fb-s-${opt.key}${status === opt.key ? ' active' : ''}`}
+          onClick={() => onChange(opt.key)}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function FbResolutionField({ resolution, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft,   setDraft]   = useState(resolution || '');
+
+  const handleSave = () => {
+    onSave(draft.trim() || null);
+    setEditing(false);
+  };
+
+  if (!editing && !resolution) {
+    return (
+      <div className="resolution-empty" onClick={() => { setDraft(''); setEditing(true); }}>
+        + Explicar cómo se resuelve el dolor del cliente...
+      </div>
+    );
+  }
+  if (!editing) {
+    return (
+      <div className="resolution-filled">
+        <span className="resolution-label">💡 Resolución:</span>
+        <span className="resolution-text">{resolution}</span>
+        <button className="btn-icon-sm" onClick={() => { setDraft(resolution || ''); setEditing(true); }}>✏️</button>
+      </div>
+    );
+  }
+  return (
+    <div className="resolution-editing">
+      <textarea
+        className="resolution-textarea"
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        placeholder="¿Cómo se resuelve el dolor del cliente en este proyecto?"
+        autoFocus
+        rows={3}
+      />
+      <div style={{ display: 'flex', gap: 6, marginTop: 5 }}>
+        <button className="btn btn-primary btn-sm" onClick={handleSave}>Guardar</button>
+        <button className="btn btn-sm" onClick={() => setEditing(false)}>Cancelar</button>
+      </div>
+    </div>
+  );
+}
+
 // ── Tab: Feedback ────────────────────────────────────────────────────────────
 function TabFeedback({ project, actions, clients, showToast }) {
-  const [newFb,     setNewFb]     = useState('');
-  const [newClient, setNewClient] = useState('');
-  // Normalize: feedback items may be plain strings (legacy) or { text, client }
+  const [newFb,       setNewFb]       = useState('');
+  const [newClient,   setNewClient]   = useState('');
+  const [editingIdx,  setEditingIdx]  = useState(null);
+  const [editDraft,   setEditDraft]   = useState('');
+
+  // Normalize: items may be plain strings (legacy) or { text, client, status, resolution }
   const rawFeedback = project.feedback || [];
-  const feedback = rawFeedback.map(f => typeof f === 'string' ? { text: f, client: null } : f);
+  const feedback = rawFeedback.map(f =>
+    typeof f === 'string' ? { text: f, client: null, status: 'pendiente', resolution: null } : f
+  );
+
+  const saveItem = (idx, changes) => {
+    const updated = feedback.map((f, i) => i === idx ? { ...f, ...changes } : f);
+    actions.updateProject(project.id, { feedback: updated });
+  };
 
   const handleAdd = () => {
     if (!newFb.trim()) return;
     const client = newClient.trim() || null;
     if (client) actions.addClient(client);
-    const newItem = { text: newFb.trim(), client };
+    const newItem = { text: newFb.trim(), client, status: 'pendiente', resolution: null };
     actions.updateProject(project.id, { feedback: [...rawFeedback, newItem] });
-    actions.addFeedbackItem(newFb.trim(), project.id, 'Manual', client);
+    actions.addFeedbackItem(newFb.trim(), project.id, null, client);
     setNewFb('');
     setNewClient('');
     showToast('Feedback añadido', '💬');
@@ -190,20 +267,49 @@ function TabFeedback({ project, actions, clients, showToast }) {
       <div className="section-h">Feedback de clientes y equipo ({feedback.length})</div>
       {feedback.length === 0
         ? <div className="empty-state">No hay feedback asignado a este proyecto todavía.<br />Ve a <strong>Feedback Inbox</strong> para asignar mensajes de Slack o email.</div>
-        : feedback.map((f, i) => (
-            <div key={i} className="feedback-quote">
-              <span className="q-icon">💬</span>
-              <div style={{ flex: 1 }}>
-                <div>{f.text}</div>
-                {f.client && (
-                  <span className="badge badge-client" style={{ marginTop: 4, display: 'inline-block' }}>
-                    👤 {f.client}
-                  </span>
-                )}
+        : feedback.map((f, i) => {
+            const status   = f.status || 'pendiente';
+            const isDimmed = status === 'resuelto' || status === 'ahora-no';
+            return (
+              <div key={i} className="feedback-quote" style={{ opacity: isDimmed ? 0.6 : 1 }}>
+                <span className="q-icon">💬</span>
+                <div style={{ flex: 1 }}>
+                  {editingIdx === i ? (
+                    <>
+                      <textarea
+                        style={{ width: '100%', fontSize: 14, borderRadius: 6, border: '1.5px solid #a78bfa', padding: '7px 10px', fontFamily: 'inherit', resize: 'vertical' }}
+                        value={editDraft}
+                        onChange={e => setEditDraft(e.target.value)}
+                        autoFocus
+                        rows={3}
+                      />
+                      <div style={{ display: 'flex', gap: 6, marginTop: 5 }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => { saveItem(i, { text: editDraft.trim() }); setEditingIdx(null); showToast('Feedback actualizado', '✏️'); }}>Guardar</button>
+                        <button className="btn btn-sm" onClick={() => setEditingIdx(null)}>Cancelar</button>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                      <div style={{ flex: 1 }}>{f.text}</div>
+                      <button className="btn-icon-sm" onClick={() => { setEditDraft(f.text); setEditingIdx(i); }}>✏️</button>
+                    </div>
+                  )}
+                  {f.client && (
+                    <span className="badge badge-client" style={{ marginTop: 4, display: 'inline-block' }}>
+                      👤 {f.client}
+                    </span>
+                  )}
+                  <FbStatusBar status={status} onChange={s => saveItem(i, { status: s })} />
+                  <FbResolutionField
+                    resolution={f.resolution || null}
+                    onSave={val => saveItem(i, { resolution: val })}
+                  />
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
       }
+
       <div className="section-h" style={{ marginTop: 8 }}>Agregar feedback manual</div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         <input

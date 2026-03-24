@@ -173,19 +173,24 @@ const FB_STATUS_OPTIONS = [
   { key: 'ahora-no',  label: '⏸ Ahora no' },
 ];
 
-function FbStatusBar({ status, onChange }) {
+const FB_STATUS_STYLE = {
+  pendiente:  { borderColor: '#f59e0b', color: '#d97706', background: '#fffbeb' },
+  revision:   { borderColor: '#3b82f6', color: '#2563eb', background: '#eff6ff' },
+  resuelto:   { borderColor: '#10b981', color: '#059669', background: '#ecfdf5' },
+  'ahora-no': { borderColor: '#9ca3af', color: '#6b7280', background: '#f9fafb' },
+};
+
+function FbStatusSelect({ status, onChange }) {
+  const s = FB_STATUS_STYLE[status] || FB_STATUS_STYLE.pendiente;
   return (
-    <div className="fb-status-bar">
-      {FB_STATUS_OPTIONS.map(opt => (
-        <button
-          key={opt.key}
-          className={`fb-status-btn fb-s-${opt.key}${status === opt.key ? ' active' : ''}`}
-          onClick={() => onChange(opt.key)}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
+    <select
+      className="status-select"
+      style={{ borderColor: s.borderColor, color: s.color, background: s.background }}
+      value={status}
+      onChange={e => onChange(e.target.value)}
+    >
+      {FB_STATUS_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+    </select>
   );
 }
 
@@ -299,7 +304,7 @@ function TabFeedback({ project, actions, clients, showToast }) {
                       👤 {f.client}
                     </span>
                   )}
-                  <FbStatusBar status={status} onChange={s => saveItem(i, { status: s })} />
+                  <FbStatusSelect status={status} onChange={s => saveItem(i, { status: s })} />
                   <FbResolutionField
                     resolution={f.resolution || null}
                     onSave={val => saveItem(i, { resolution: val })}

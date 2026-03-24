@@ -94,7 +94,20 @@ export function useAppState() {
 
   const changeStage = useCallback((id, newStage) => {
     updateProject(id, { stage: newStage });
-  }, [updateProject]);
+    // Auto-resolve assigned feedback when project reaches production
+    if (newStage === 'produccion') {
+      setFeedbackItems(prev => {
+        const next = prev.map(f =>
+          f.projectId === id && f.status !== 'ahora-no'
+            ? { ...f, status: 'resuelto' }
+            : f
+        );
+        refs.current.feedbackItems = next;
+        return next;
+      });
+      scheduleSave();
+    }
+  }, [updateProject, scheduleSave]);
 
   // ── Feedback actions ───────────────────────────────────────────────────────
 
@@ -111,7 +124,7 @@ export function useAppState() {
 
   const addFeedbackItem = useCallback((text, projectId = null, _source = null, client = null) => {
     const id = refs.current.nextFbId;
-    const item = { id, text, projectId, client: client || null, date: today(), status: 'pendiente', resolution: null };
+    const item = { id, text, projectId, client: client || null, date: today(), status: 'pendiente', resolution: null, mergedFrom: [], mergedInto: null };
     setFeedbackItems(prev => {
       const next = [item, ...prev];
       refs.current.feedbackItems = next;
@@ -134,6 +147,23 @@ export function useAppState() {
   const deleteFeedbackItem = useCallback((id) => {
     setFeedbackItems(prev => {
       const next = prev.filter(f => f.id !== id);
+      refs.current.feedbackItems = next;
+      return next;
+    });
+    scheduleSave();
+  }, [scheduleSave]);
+
+  const mergeFeedbackItems = useCallback((primaryId, secondaryIds) => {
+    setFeedbackItems(prev => {
+      const next = prev.map(f => {
+        if (f.id === primaryId) {
+          return { ...f, mergedFrom: [...(f.mergedFrom || []), ...secondaryIds] };
+        }
+        if (secondaryIds.includes(f.id)) {
+          return { ...f, mergedInto: primaryId };
+        }
+        return f;
+      });
       refs.current.feedbackItems = next;
       return next;
     });
@@ -237,7 +267,7 @@ export function useAppState() {
     actions: {
       addProject, updateProject, deleteProject, changeStage,
       addClient,
-      addFeedbackItem, updateFeedbackItem, deleteFeedbackItem, assignFeedback,
+      addFeedbackItem, updateFeedbackItem, deleteFeedbackItem, assignFeedback, mergeFeedbackItems,
       addAlcanceItem, toggleAlcanceItem, assignAlcanceItem, deleteAlcanceItem,
       updateLaunch, addLaunchComm, updateLaunchComm, deleteLaunchComm,
       resetData,

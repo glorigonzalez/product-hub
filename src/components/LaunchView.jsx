@@ -1,12 +1,13 @@
 import { STAGES } from '../config/stages';
 
 const CHANNELS = {
-  slack:    { icon: '💬' },
-  email:    { icon: '📧' },
-  whatsapp: { icon: '📱' },
-  inapp:    { icon: '🔔' },
-  push:     { icon: '📲' },
-  notes:    { icon: '📝' },
+  slack:    { icon: '💬', label: 'Slack' },
+  email:    { icon: '📧', label: 'Email' },
+  whatsapp: { icon: '📱', label: 'WhatsApp' },
+  inapp:    { icon: '🔔', label: 'In-app' },
+  push:     { icon: '📲', label: 'Push' },
+  notes:    { icon: '📝', label: 'Docs' },
+  video:    { icon: '🎥', label: 'Video' },
 };
 
 const TIMING_LABELS = {
@@ -71,12 +72,12 @@ function LaunchCard({ project, onOpenLaunch }) {
       {comms.length > 0 && (
         <div className="launch-channels">
           {comms.map(c => {
-            const icon = (CHANNELS[c.channel] || { icon: '📌' }).icon;
+            const ch   = CHANNELS[c.channel] || { icon: '📌', label: c.channel };
             const cls  = { ready: 'lch-ready', sent: 'lch-sent', draft: 'lch-draft', pending: 'lch-pending' }[c.status] || 'lch-pending';
             const prefix = (c.status === 'ready' || c.status === 'sent') ? '✓ ' : c.status === 'draft' ? '✎ ' : '○ ';
             return (
               <span key={c.id} className={`launch-ch-pill ${cls}`}>
-                {prefix}{icon} {c.label}
+                {prefix}{ch.icon} {ch.label}
               </span>
             );
           })}

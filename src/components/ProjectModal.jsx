@@ -75,7 +75,7 @@ function getDateStatus(p) {
   return null;
 }
 
-// ── Tab: Contexto ────────────────────────────────────────────────────────────
+// ── Tab: Resumen ──────────────────────────────────────────────────────────────
 function TabContexto({ project, projects, onOpen, onUpdate }) {
   const p = project;
   const parentProj = p.parentId ? projects.find(pp => pp.id === p.parentId) : null;
@@ -163,13 +163,22 @@ function TabContexto({ project, projects, onOpen, onUpdate }) {
       )}
 
       <div className="section-h" style={{ marginTop: 16 }}>Actividad</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8 }}>
-        {[
-          { label: 'Ideas',     value: (p.ideas || []).length,     bg: 'var(--c-ideacion-bg)',   color: 'var(--c-ideacion)',   border: 'var(--c-ideacion-border)'   },
-          { label: 'Feedbacks', value: (p.feedback || []).length,  bg: 'var(--c-pitch-bg)',      color: 'var(--c-pitch)',      border: 'var(--c-pitch-border)'      },
-          { label: 'Pitch',     value: p.pitch ? '✓' : '—',       bg: 'var(--c-produccion-bg)', color: 'var(--c-produccion)', border: 'var(--c-produccion-border)' },
-          { label: 'Subs',      value: subs.length,                bg: 'var(--bg)',              color: 'var(--primary)',      border: 'var(--border)'              },
-        ].map(({ label, value, bg, color, border }) => (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        {(() => {
+          const alcanceItems = p.alcance || [];
+          const alcanceDone  = alcanceItems.filter(a => a.done).length;
+          const comms        = (p.launch?.comms || []);
+          const commsReady   = comms.filter(c => c.status === 'ready' || c.status === 'sent').length;
+          const launchVal    = comms.length === 0 ? '—' : commsReady === comms.length ? '✓' : `${commsReady}/${comms.length}`;
+          return [
+            { label: 'Ideas',         value: (p.ideas || []).length,                    bg: 'var(--c-ideacion-bg)',   color: 'var(--c-ideacion)',   border: 'var(--c-ideacion-border)'   },
+            { label: 'Pitch',         value: p.pitch ? '✓' : '—',                      bg: 'var(--c-produccion-bg)', color: 'var(--c-produccion)', border: 'var(--c-produccion-border)' },
+            { label: 'Alcance',       value: alcanceItems.length === 0 ? '—' : `${alcanceDone}/${alcanceItems.length}`, bg: 'var(--c-desarrollo-bg)', color: 'var(--c-desarrollo)', border: 'var(--c-desarrollo-border)' },
+            { label: 'Subproyectos',  value: subs.length,                               bg: 'var(--bg)',              color: 'var(--primary)',      border: 'var(--border)'              },
+            { label: 'Lanzamiento',   value: launchVal,                                  bg: 'var(--c-qa-bg)',         color: 'var(--c-qa)',         border: 'var(--c-qa-border)'         },
+            { label: 'Feedback',      value: (p.feedback || []).length,                 bg: 'var(--c-pitch-bg)',      color: 'var(--c-pitch)',      border: 'var(--c-pitch-border)'      },
+          ];
+        })().map(({ label, value, bg, color, border }) => (
           <div key={label} style={{ textAlign: 'center', padding: '12px 8px', background: bg, border: `1px solid ${border}`, borderRadius: 8 }}>
             <div style={{ fontSize: 20, fontWeight: 800, color }}>{value}</div>
             <div style={{ fontSize: 11, color, fontWeight: 600, marginTop: 2 }}>{label}</div>
@@ -541,14 +550,33 @@ function TabSubproyectos({ project, projects, actions, onOpen, showToast }) {
 }
 
 // ── Tab: Lanzamiento ─────────────────────────────────────────────────────────
-const CHANNELS = {
+// Master lookup (all possible channels, including legacy keys)
+const CHANNELS_ALL = {
   slack:    { icon: '💬', label: 'Slack' },
   email:    { icon: '📧', label: 'Email' },
   whatsapp: { icon: '📱', label: 'WhatsApp' },
   inapp:    { icon: '🔔', label: 'In-app' },
   push:     { icon: '📲', label: 'Push' },
   notes:    { icon: '📝', label: 'Docs / Notes' },
+  video:    { icon: '🎥', label: 'Video' },
 };
+
+// Audience-specific subsets shown in the add form
+const CHANNELS_INTERNAL = {
+  slack:    CHANNELS_ALL.slack,
+  email:    CHANNELS_ALL.email,
+};
+
+const CHANNELS_CUSTOMER = {
+  email:    CHANNELS_ALL.email,
+  whatsapp: CHANNELS_ALL.whatsapp,
+  inapp:    CHANNELS_ALL.inapp,
+  push:     CHANNELS_ALL.push,
+  video:    CHANNELS_ALL.video,
+};
+
+// Alias for backward-compat references inside CommRow
+const CHANNELS = CHANNELS_ALL;
 
 const TIMING_OPTIONS = [
   { key: 'pre',          icon: '📢', label: 'Antes',       desc: 'Anunciar antes del deploy para generar expectativa' },
@@ -607,17 +635,20 @@ function CommRow({ comm, projectId, actions, showToast }) {
 }
 
 function AddCommRow({ projectId, audience, actions, showToast }) {
+  const channels = audience === 'internal' ? CHANNELS_INTERNAL : CHANNELS_CUSTOMER;
+  const defaultCh = Object.keys(channels)[0];
+
   const [open,      setOpen]      = useState(false);
-  const [ch,        setCh]        = useState('email');
+  const [ch,        setCh]        = useState(defaultCh);
   const [lbl,       setLbl]       = useState('');
   const [sched,     setSched]     = useState('at');
-  const [editorKey, setEditorKey] = useState(0); // force remount on clear
+  const [editorKey, setEditorKey] = useState(0);
 
   const handleAdd = () => {
-    const label = lbl || CHANNELS[ch]?.label || ch;
+    const label = lbl || CHANNELS_ALL[ch]?.label || ch;
     actions.addLaunchComm(projectId, { audience, channel: ch, label, scheduledFor: sched, status: 'pending' });
     setLbl('');
-    setCh('email');
+    setCh(defaultCh);
     setSched('at');
     setEditorKey(k => k + 1);
     setOpen(false);
@@ -636,7 +667,7 @@ function AddCommRow({ projectId, audience, actions, showToast }) {
     <div className="comm-add-col">
       <div className="comm-add-row">
         <select value={ch} onChange={e => setCh(e.target.value)} style={{ width: 130 }}>
-          {Object.entries(CHANNELS).map(([k, v]) => (
+          {Object.entries(channels).map(([k, v]) => (
             <option key={k} value={k}>{v.icon} {v.label}</option>
           ))}
         </select>
@@ -652,7 +683,7 @@ function AddCommRow({ projectId, audience, actions, showToast }) {
         key={editorKey}
         initialHtml=""
         onChange={setLbl}
-        placeholder={`Descripción (ej: ${CHANNELS[ch]?.label || 'Canal'} al equipo...)`}
+        placeholder={`Descripción (ej: ${CHANNELS_ALL[ch]?.label || 'Canal'} al equipo...)`}
         autoFocus
       />
     </div>
@@ -878,7 +909,7 @@ export default function ProjectModal({ project: initialProject, projects, client
     : '🚀 Lanzamiento';
 
   const tabs = [
-    { key: 'contexto',     label: 'Contexto' },
+    { key: 'contexto',     label: 'Resumen' },
     { key: 'brainstorm',   label: 'Brainstorm' },
     { key: 'alcance',      label: alcanceCount > 0 ? `Alcance (${alcanceDone}/${alcanceCount})` : 'Alcance' },
     { key: 'pitch',        label: 'Pitch & Spec' },
